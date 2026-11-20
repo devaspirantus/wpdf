@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Livewire\CaseSearch;
+use App\Livewire\PracticalStation;
 use App\Livewire\Reception;
 use App\Livewire\TheoryStation;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,8 @@ Route::middleware('auth')->group(function () {
         ->name('case.search');
     Route::get('/theory/{case}', TheoryStation::class)
         ->name('theory');
+    Route::get('/practical/{case}', PracticalStation::class)
+        ->name('practical');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

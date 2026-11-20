@@ -54,6 +54,17 @@
                             </div>
                         </dl>
 
+                        @if ($case->status === \App\Enums\CaseStatus::practical)
+                            <div class="mt-4">
+                                <a
+                                    href="{{ route('practical', $case) }}"
+                                    class="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-4 py-2 text-xs font-semibold leading-5 text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                >
+                                    الانتقال إلى المختبر العملي
+                                </a>
+                            </div>
+                        @endif
+
                         @if ($case->status === \App\Enums\CaseStatus::theory)
                             <div class="mt-4">
                                 <a
