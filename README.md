@@ -7,6 +7,24 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Worker Testing App
+
+A 4-station worker testing flow for employment approval:
+Reception → Theory Lab → Practical Lab → Data Review.
+The only output is ONE Arabic PDF per worker.
+
+## Seeded Users
+
+Seeded by `database/seeders/DatabaseSeeder.php` (`php artisan db:seed`).
+Password for all of them: `password`
+
+| Name | Email | Role / Station |
+| --- | --- | --- |
+| Reception | reception@example.com | reception |
+| Theory | theory@example.com | theory |
+| Practical | practical@example.com | practical |
+| Review | review@example.com | review |
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
