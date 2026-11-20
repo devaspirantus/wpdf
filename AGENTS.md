@@ -20,7 +20,7 @@ MVP scope only — do not build deferred features.
 - Database: MySQL 8 (via Sail)
 - Queue: database driver
 - Tests: Pest · Formatter: Pint
-- Arabic PDF library: LOCK HERE after the Step-0 spike (Browsershot or mPDF).
+- Arabic PDF library: `spatie/browsershot` (locked in Step-0 spike — Arabic tashkeel + RTL verified, clean text layer).
 
 ## Architecture (MVC)
 - **Models** (`app/Models/`): data & relationships only (WorkerCase, Document,
