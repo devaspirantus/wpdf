@@ -2,20 +2,40 @@
         stream: null,
         captured: false,
         cameraError: '',
+        rawError: '',
+        showErrorDetails: false,
         preview: '',
 
         startCamera() {
-            navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-                audio: false,
-            }).then((s) => {
-                this.stream = s;
-                this.cameraError = '';
-                this.$refs.video.srcObject = s;
-            }).catch(() => {
-                this.stream = null;
-                this.cameraError = 'تعذّر الوصول إلى الكاميرا. يرجى منح إذن استخدام الكاميرا ثم أعد المحاولة.';
-            });
+            this.cameraError = '';
+            this.rawError = '';
+            this.showErrorDetails = false;
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                this.cameraError = 'المتصفح لا يدعم الوصول إلى الكاميرا في هذا السياق (يتطلب اتصالاً آمناً).';
+                this.rawError = 'NotSupportedError: navigator.mediaDevices.getUserMedia is not available';
+                return;
+            }
+
+            const getUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+
+            getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+                .catch(() => getUserMedia({ video: true, audio: false }))
+                .then((s) => {
+                    this.stream = s;
+                    this.$refs.video.srcObject = s;
+                })
+                .catch((err) => {
+                    this.stream = null;
+                    const name = (err && err.name) || 'Error';
+                    const message = (err && err.message) || 'unknown error';
+                    this.rawError = name + ': ' + message;
+                    if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+                        this.cameraError = 'تعذّر الوصول إلى الكاميرا. يرجى منح إذن استخدام الكاميرا ثم أعد المحاولة.';
+                    } else {
+                        this.cameraError = this.rawError;
+                    }
+                });
         },
 
         stopCamera() {
@@ -76,8 +96,15 @@
                  class="w-full rounded-lg aspect-video object-cover bg-gray-100" />
         </div>
 
-        <div x-show="cameraError" x-cloak class="rounded-md bg-red-50 border border-red-200 p-3 text-red-800 text-sm">
+        <div x-show="cameraError" x-cloak class="rounded-md bg-red-50 border border-red-200 p-3 text-red-800 text-sm space-y-2">
             <span x-text="cameraError"></span>
+            <button type="button" x-show="rawError" x-on:click="showErrorDetails = !showErrorDetails"
+                    class="text-xs underline text-red-700" x-cloak>
+                <span x-text="showErrorDetails ? 'إخفاء تفاصيل الخطأ' : 'تفاصيل الخطأ'"></span>
+            </button>
+            <div x-show="showErrorDetails && rawError" x-cloak class="text-xs font-mono break-all text-red-900" dir="ltr">
+                <span x-text="rawError"></span>
+            </div>
         </div>
 
         <template x-if="!captured">
