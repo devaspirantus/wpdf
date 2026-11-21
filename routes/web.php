@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
         ->name('reception');
     Route::get('/search', CaseSearch::class)
         ->name('case.search');
-    Route::get('/theory/{case}', TheoryStation::class)
+    Route::get('/theory/{case?}', TheoryStation::class)
         ->name('theory');
     Route::get('/practical/{case}', PracticalStation::class)
         ->name('practical');

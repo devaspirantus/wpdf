@@ -1,11 +1,53 @@
 <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('المختبر النظري') }}
-        </h2>
-    </x-slot>
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        {{ __('المختبر النظري') }}
+    </h2>
+</x-slot>
 
-    <div class="py-12" dir="rtl">
-        <div class="max-w-xl mx-auto sm:px-6 lg:px-8 space-y-4">
+<div class="py-12" dir="rtl">
+    <div class="max-w-xl mx-auto sm:px-6 lg:px-8 space-y-4">
+        @if ($case === null)
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <h3 class="font-semibold text-gray-800 mb-4">الحالات قيد المعالجة النظرية</h3>
+
+                    @if ($pendingCases->isEmpty())
+                        <p class="text-sm text-gray-500">لا توجد حالات بانتظار المختبر النظري.</p>
+                    @else
+                        <ul class="divide-y divide-gray-200">
+                            @foreach ($pendingCases as $item)
+                                <li class="py-3 flex items-center justify-between gap-4">
+                                    <div class="text-sm">
+                                        <p class="font-medium text-gray-900">{{ $item->full_name }}</p>
+                                        <p class="text-gray-500 mt-1">
+                                            التذكرة: {{ $item->ticket_number }}
+                                            &middot; الجواز: {{ $item->passport_number }}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        wire:click="selectCase({{ $item->id }})"
+                                        class="shrink-0 inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700"
+                                    >
+                                        فتح الملف
+                                    </button>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            </div>
+        @else
+            <div class="flex items-center justify-end">
+                <button
+                    type="button"
+                    wire:click="backToList"
+                    class="text-sm text-gray-600 hover:text-gray-900"
+                >
+                    &rarr; رجوع إلى القائمة
+                </button>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <h3 class="font-semibold text-gray-800 mb-3">بيانات العامل</h3>
@@ -92,6 +134,6 @@
                 :currentStation="\App\Enums\Station::theory"
                 :case="$case"
             />
-        </div>
+        @endif
     </div>
-
+</div>

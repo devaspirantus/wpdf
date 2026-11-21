@@ -13,7 +13,7 @@ use Livewire\Component;
 
 class TheoryStation extends Component
 {
-    public WorkerCase $case;
+    public ?WorkerCase $case = null;
 
     public bool $advancedTo = false;
 
@@ -33,8 +33,31 @@ class TheoryStation extends Component
 
     public ?string $returnNote = null;
 
+    public function selectCase(int $id): void
+    {
+        $case = WorkerCase::query()->find($id);
+
+        if ($case === null) {
+            return;
+        }
+
+        $this->case = $case;
+        $this->resetStationState();
+    }
+
+    public function backToList(): void
+    {
+        $this->case = null;
+        $this->resetStationState();
+        $this->hasMissing = true;
+    }
+
     public function advance(CaseStateMachine $stateMachine): void
     {
+        if ($this->case === null) {
+            return;
+        }
+
         $this->reset(['advanceError', 'missingRequirements', 'advancedTo']);
 
         try {
@@ -53,6 +76,10 @@ class TheoryStation extends Component
 
     public function resubmit(CaseStateMachine $stateMachine): void
     {
+        if ($this->case === null) {
+            return;
+        }
+
         $this->reset(['advanceError', 'missingRequirements', 'advancedTo']);
 
         $this->case = $stateMachine->resubmitToReview($this->case);
@@ -64,7 +91,7 @@ class TheoryStation extends Component
     #[On('case-document-stored')]
     public function documentStored(int $caseId): void
     {
-        if ((int) $this->case->id !== $caseId) {
+        if ($this->case === null || (int) $this->case->id !== $caseId) {
             return;
         }
 
@@ -75,11 +102,25 @@ class TheoryStation extends Component
     {
         $this->refreshRequirements();
 
-        return view('livewire.theory-station');
+        $cases = WorkerCase::query()
+            ->where('status', CaseStatus::theory)
+            ->orderByDesc('created_at')
+            ->get(['id', 'full_name', 'ticket_number', 'passport_number', 'created_at']);
+
+        return view('livewire.theory-station', ['pendingCases' => $cases]);
     }
 
     private function refreshRequirements(): void
     {
+        if ($this->case === null) {
+            $this->requirements = [];
+            $this->hasMissing = true;
+            $this->isReturned = false;
+            $this->returnNote = null;
+
+            return;
+        }
+
         $this->case = $this->case->fresh();
 
         $this->syncReturnedState();
@@ -87,6 +128,17 @@ class TheoryStation extends Component
         $stationCompletion = app(StationCompletion::class);
         $this->requirements = $stationCompletion->requirements($this->case, Station::theory);
         $this->hasMissing = $stationCompletion->missing($this->case, Station::theory) !== [];
+    }
+
+    private function resetStationState(): void
+    {
+        $this->advanceError = null;
+        $this->advancedTo = false;
+        $this->missingRequirements = [];
+        $this->requirements = [];
+        $this->hasMissing = true;
+        $this->isReturned = false;
+        $this->returnNote = null;
     }
 
     private function syncReturnedState(): void
