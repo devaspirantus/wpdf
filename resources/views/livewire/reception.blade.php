@@ -70,6 +70,11 @@
                             {{ __('المحطة التالية') }}
                         </x-primary-button>
                     </div>
+
+                    <x-station-summary
+                        :currentStation="\App\Enums\Station::reception"
+                        :case="$case"
+                    />
                 </div>
             @endif
 

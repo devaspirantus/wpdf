@@ -87,6 +87,11 @@
                     </x-primary-button>
                 </div>
             @endif
+
+            <x-station-summary
+                :currentStation="\App\Enums\Station::theory"
+                :case="$case"
+            />
         </div>
     </div>
 

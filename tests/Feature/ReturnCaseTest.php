@@ -208,7 +208,8 @@ class ReturnCaseTest extends TestCase
             ->set('returnNote', 'ملاحظة الإرجاع للنظر')
             ->call('submitReturn')
             ->assertHasNoErrors()
-            ->assertDontSee('إرجاع الملف');
+            ->assertSee('تم إرجاع الملف بنجاح')
+            ->assertSee('الحالات قيد المراجعة');
 
         $this->assertSame(CaseStatus::returned, $case->fresh()->status);
         $this->assertDatabaseHas('case_returns', [
@@ -229,6 +230,36 @@ class ReturnCaseTest extends TestCase
             ->set('returnNote', 'ملاحظة')
             ->call('submitReturn')
             ->assertHasErrors(['returnStation' => 'required']);
+
+        $this->assertSame(CaseStatus::review, $case->fresh()->status);
+    }
+
+    public function test_return_note_of_exactly_500_chars_passes_validation(): void
+    {
+        $this->actingAsUser();
+        $case = $this->createReviewCase();
+
+        Livewire::test(ReviewStation::class)
+            ->call('selectCase', $case->id)
+            ->set('returnStation', 'theory')
+            ->set('returnNote', str_repeat('ا', 500))
+            ->call('submitReturn')
+            ->assertHasNoErrors(['returnNote']);
+
+        $this->assertSame(CaseStatus::returned, $case->fresh()->status);
+    }
+
+    public function test_return_note_over_500_chars_fails_validation(): void
+    {
+        $this->actingAsUser();
+        $case = $this->createReviewCase();
+
+        Livewire::test(ReviewStation::class)
+            ->call('selectCase', $case->id)
+            ->set('returnStation', 'theory')
+            ->set('returnNote', str_repeat('ا', 501))
+            ->call('submitReturn')
+            ->assertHasErrors(['returnNote' => 'max:500']);
 
         $this->assertSame(CaseStatus::review, $case->fresh()->status);
     }

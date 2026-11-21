@@ -22,6 +22,13 @@
 
 <div class="py-12" dir="rtl">
     <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-4">
+        @if ($returnSuccess !== null)
+            <div class="rounded-md bg-green-50 border border-green-200 p-4 text-green-800 text-sm">
+                <p class="font-semibold">{{ $returnSuccess }}</p>
+                <p class="mt-1">انتقل إلى المحطة المستهدفة لاستكمال المعالجة.</p>
+            </div>
+        @endif
+
         @if ($case === null)
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
@@ -219,7 +226,7 @@
                         </div>
                     @endif
 
-                    <form wire:submit="submitReturn" class="space-y-4">
+                      <form wire:submit="submitReturn" class="space-y-4">
                         <div>
                             <label for="return-station" class="block text-sm font-medium text-gray-700 mb-1">المحطة المستهدفة</label>
                             <select
@@ -278,6 +285,11 @@
                     توليد PDF
                 </button>
             </div>
+
+            <x-station-summary
+                :currentStation="\App\Enums\Station::review"
+                :case="$case"
+            />
         @endif
     </div>
 </div>

@@ -21,6 +21,8 @@ class ReviewStation extends Component
 
     public ?string $returnError = null;
 
+    public ?string $returnSuccess = null;
+
     public function selectCase(int $caseId): void
     {
         $this->caseId = $caseId;
@@ -37,7 +39,7 @@ class ReviewStation extends Component
     {
         $this->validate([
             'returnStation' => ['required', 'string', 'in:reception,theory,practical'],
-            'returnNote' => ['required', 'string', 'max:1000'],
+            'returnNote' => ['required', 'string', 'max:500'],
         ]);
 
         $caseId = $this->caseId;
@@ -65,6 +67,7 @@ class ReviewStation extends Component
             );
             $this->caseId = null;
             $this->resetReturnForm();
+            $this->returnSuccess = 'تم إرجاع الملف بنجاح';
         } catch (LogicException $e) {
             $this->returnError = $e->getMessage();
         }
@@ -112,5 +115,6 @@ class ReviewStation extends Component
         $this->reset('returnStation');
         $this->reset('returnNote');
         $this->reset('returnError');
+        $this->reset('returnSuccess');
     }
 }
