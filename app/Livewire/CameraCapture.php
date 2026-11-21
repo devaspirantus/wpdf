@@ -6,14 +6,12 @@ use App\Actions\StoreCaseDocument;
 use App\Enums\Station;
 use App\Models\Document;
 use App\Models\WorkerCase;
+use Illuminate\Http\UploadedFile;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 class CameraCapture extends Component
 {
-    use WithFileUploads;
-
     #[Locked]
     public int $caseId;
 
@@ -26,30 +24,56 @@ class CameraCapture extends Component
     #[Locked]
     public string $label;
 
-    public $image;
-
-    public function capture(StoreCaseDocument $storeCaseDocument): void
+    public function saveImage(string $imageData): void
     {
-        $this->validate(
-            rules: [
-                'image' => 'required|image|mimes:png,jpg,jpeg,webp|max:5120',
-            ],
-            messages: [
-                'image.required' => 'يرجى التقاط الصورة قبل التأكيد',
-                'image.image' => 'المرفق يجب أن يكون صورة',
-                'image.max' => 'حجم الصورة كبير جداً',
-            ]
-        );
+        $parts = explode(',', $imageData, 2);
 
-        $storeCaseDocument->handle(
-            $this->case(),
-            $this->station,
-            $this->type,
-            $this->image,
-            auth()->id(),
-        );
+        if (count($parts) !== 2 || ! preg_match('/^data:image\/(jpeg|png);base64$/', $parts[0])) {
+            $this->addError('imageData', 'المرفق يجب أن يكون صورة');
 
-        $this->reset('image');
+            return;
+        }
+
+        if (strlen($parts[1]) > 5120 * 1024) {
+            $this->addError('imageData', 'حجم الصورة كبير جداً');
+
+            return;
+        }
+
+        $binary = base64_decode($parts[1], true);
+
+        if ($binary === false) {
+            $this->addError('imageData', 'الصيغة البيانية للصورة غير صالحة');
+
+            return;
+        }
+
+        $mimeType = str_starts_with($parts[0], 'data:image/png') ? 'image/png' : 'image/jpeg';
+        $extension = $mimeType === 'image/png' ? 'png' : 'jpg';
+
+        $tempPath = tempnam(sys_get_temp_dir(), 'capture_');
+
+        file_put_contents($tempPath, $binary);
+
+        try {
+            $file = new UploadedFile(
+                $tempPath,
+                sprintf('%s.%s', $this->type, $extension),
+                $mimeType,
+                null,
+                true,
+            );
+
+            app(StoreCaseDocument::class)->handle(
+                $this->case(),
+                $this->station,
+                $this->type,
+                $file,
+                auth()->id(),
+            );
+        } finally {
+            @unlink($tempPath);
+        }
 
         $this->dispatch('case-document-stored', caseId: $this->caseId);
     }

@@ -21,6 +21,8 @@ class CameraCaptureTest extends TestCase
 
     private WorkerCase $case;
 
+    private string $sampleImage;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -34,6 +36,9 @@ class CameraCaptureTest extends TestCase
             'ticket_number' => 'T-1001',
             'status' => CaseStatus::reception,
         ]);
+
+        $fake = UploadedFile::fake()->image('worker.jpg');
+        $this->sampleImage = 'data:image/jpeg;base64,'.base64_encode($fake->get());
     }
 
     public function test_the_component_renders_when_no_document_exists_yet(): void
@@ -70,7 +75,7 @@ class CameraCaptureTest extends TestCase
             ->assertSee('تم الالتقاط ✓');
     }
 
-    public function test_capture_without_an_image_fails_validation(): void
+    public function test_save_image_without_a_data_url_fails_validation(): void
     {
         Livewire::test(CameraCapture::class, [
             'caseId' => $this->case->id,
@@ -78,13 +83,13 @@ class CameraCaptureTest extends TestCase
             'type' => 'worker_photo',
             'label' => 'صورة العامل',
         ])
-            ->call('capture')
-            ->assertHasErrors(['image' => 'required']);
+            ->call('saveImage', '')
+            ->assertHasErrors(['imageData']);
 
         $this->assertDatabaseCount('documents', 0);
     }
 
-    public function test_capture_with_a_valid_image_stores_the_document(): void
+    public function test_save_image_with_an_invalid_data_url_fails_validation(): void
     {
         Livewire::test(CameraCapture::class, [
             'caseId' => $this->case->id,
@@ -92,15 +97,56 @@ class CameraCaptureTest extends TestCase
             'type' => 'worker_photo',
             'label' => 'صورة العامل',
         ])
-            ->set('image', UploadedFile::fake()->image('worker.png'))
-            ->call('capture')
-            ->assertHasNoErrors();
+            ->call('saveImage', 'not-a-data-url')
+            ->assertHasErrors(['imageData']);
+
+        $this->assertDatabaseCount('documents', 0);
+    }
+
+    public function test_save_image_with_a_valid_data_url_stores_the_document(): void
+    {
+        Livewire::test(CameraCapture::class, [
+            'caseId' => $this->case->id,
+            'station' => Station::reception,
+            'type' => 'worker_photo',
+            'label' => 'صورة العامل',
+        ])
+            ->call('saveImage', $this->sampleImage)
+            ->assertHasNoErrors()
+            ->assertDispatched('case-document-stored');
 
         $this->assertDatabaseHas('documents', [
             'case_id' => $this->case->id,
             'station' => 'reception',
             'type' => 'worker_photo',
             'created_by' => $this->user->id,
+        ]);
+    }
+
+    public function test_save_image_replaces_an_existing_document_on_retake(): void
+    {
+        app(StoreCaseDocument::class)->handle(
+            $this->case,
+            Station::reception,
+            'worker_photo',
+            UploadedFile::fake()->image('worker.jpg'),
+            $this->user->id,
+        );
+
+        Livewire::test(CameraCapture::class, [
+            'caseId' => $this->case->id,
+            'station' => Station::reception,
+            'type' => 'worker_photo',
+            'label' => 'صورة العامل',
+        ])
+            ->call('saveImage', $this->sampleImage)
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseCount('documents', 1);
+        $this->assertDatabaseHas('documents', [
+            'case_id' => $this->case->id,
+            'station' => 'reception',
+            'type' => 'worker_photo',
         ]);
     }
 }
