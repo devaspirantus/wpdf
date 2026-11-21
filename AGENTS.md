@@ -53,6 +53,21 @@ UI text + PDF output: Arabic (RTL).
 - No external APIs, no cloud services, no third-party integrations.
 - No image deletion in MVP.
 
+## Camera fallback (capture/upload)
+- The CameraCapture component offers TWO ways to provide the image:
+  live camera capture, OR "رفع من الجهاز" (upload from device) as a
+  fallback when the camera is unavailable/denied.
+- Both paths converge on the SAME server method `saveImage(string $imageData)`
+  and the SAME `StoreCaseDocument` action. Do NOT modify `StoreCaseDocument`
+  or the `cases/{id}/{station}/{type}.{ext}` storage pattern.
+- Server-side validation in `saveImage()` (order matters):
+  1. strict data-URL regex: only `data:image/jpeg` or `data:image/png` allowed
+  2. strict `base64_decode($payload, true)` — reject on failure
+  3. decoded binary size <= 5 MB
+  4. `getimagesizefromstring()` content sniff — decode is not enough
+- Camera logic is 100% inline Alpine in the Blade. Do NOT modify
+  `resources/js/app.js`.
+
 ## Station Access Control
 - Each station route MUST verify the logged-in user's role matches that station.
   On mismatch → abort(403) with Arabic message: "غير مصرح لك بالدخول لهذه المحطة".
@@ -79,3 +94,17 @@ archiving/deletion · delivery-tracking button.
 ## Before finishing a task
 Run `php artisan test` and `./vendor/bin/pint`. Fix all failures.
 Then mark the task [x] in docs/PLAN.md.
+
+## Definition of Done (for EVERY task)
+A task is NOT complete until ALL of these are true:
+1. `php artisan test` passes.
+2. `./vendor/bin/pint` is clean.
+3. The task is marked [x] in docs/PLAN.md.
+4. The work is COMMITTED as `feat(Tx.y): <description>`.
+   - Commit BEFORE reporting. One task = one commit.
+   - NEVER batch multiple tasks into one commit.
+   - If you finish a task, commit it immediately — do not wait.
+
+## Livewire 4 gotchas
+- Event listeners use `#[On('event-name')]`. `#[Listen]` does NOT exist in
+  Livewire 4 and causes "handler does not exist" errors.

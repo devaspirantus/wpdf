@@ -34,16 +34,24 @@ class CameraCapture extends Component
             return;
         }
 
-        if (strlen($parts[1]) > 5120 * 1024) {
+        $binary = base64_decode($parts[1], true);
+
+        if ($binary === false) {
+            $this->addError('imageData', 'الصيغة البيانية للصورة غير صالحة');
+
+            return;
+        }
+
+        if (strlen($binary) > 5 * 1024 * 1024) {
             $this->addError('imageData', 'حجم الصورة كبير جداً');
 
             return;
         }
 
-        $binary = base64_decode($parts[1], true);
+        $info = @getimagesizefromstring($binary);
 
-        if ($binary === false) {
-            $this->addError('imageData', 'الصيغة البيانية للصورة غير صالحة');
+        if ($info === false) {
+            $this->addError('imageData', 'الصورة غير صالحة');
 
             return;
         }

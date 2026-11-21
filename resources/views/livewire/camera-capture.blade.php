@@ -5,6 +5,49 @@
         rawError: '',
         showErrorDetails: false,
         preview: '',
+        uploadPreview: '',
+        uploadFile: null,
+        cameraFileError: '',
+
+        onFileSelected(event) {
+            this.uploadPreview = '';
+            this.uploadFile = null;
+
+            const file = event.target.files && event.target.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            if (!['image/jpeg', 'image/png'].includes(file.type)) {
+                this.cameraFileError = 'نوع الملف غير مدعوم. يُقبل JPG أو PNG فقط.';
+                event.target.value = '';
+
+                return;
+            }
+
+            this.cameraFileError = '';
+            this.uploadFile = file;
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                this.uploadPreview = reader.result;
+            };
+            reader.readAsDataURL(file);
+        },
+
+        uploadConfirm() {
+            if (!this.uploadPreview) {
+                return;
+            }
+            this.$wire.saveImage(this.uploadPreview);
+        },
+
+        uploadCancel() {
+            this.uploadPreview = '';
+            this.uploadFile = null;
+            this.$refs.fileInput.value = '';
+        },
 
         startCamera() {
             this.cameraError = '';
@@ -107,7 +150,37 @@
             </div>
         </div>
 
-        <template x-if="!captured">
+        <div x-show="!captured && !uploadPreview" x-cloak class="space-y-2">
+            <button type="button" x-on:click="$refs.fileInput.click()"
+                    x-class="{ 'ring-2 ring-blue-500 ring-offset-1': cameraError }"
+                    class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold rounded-md border border-gray-300">
+                رفع من الجهاز
+            </button>
+            <p x-show="cameraFileError" x-cloak x-text="cameraFileError"
+               class="mt-2 text-sm text-red-600"></p>
+        </div>
+
+        <input type="file" x-ref="fileInput" accept="image/jpeg,image/png" class="hidden"
+               x-on:change="onFileSelected($event)" />
+
+        <div x-show="uploadPreview" x-cloak class="space-y-3">
+            <img :src="uploadPreview" alt="معاينة الصورة المرفوعة"
+                 class="w-full rounded-lg aspect-video object-cover bg-gray-100" />
+            <div class="flex items-center gap-3">
+                <button type="button" x-on:click="uploadCancel()"
+                        class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-md">
+                    إلغاء
+                </button>
+                <button type="button" x-on:click="uploadConfirm()"
+                        wire:target="saveImage" wire:loading.attr="disabled"
+                        class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-md disabled:opacity-50">
+                    <span wire:loading.remove>اعتماد</span>
+                    <span wire:loading wire:target="saveImage" x-cloak>جارٍ الحفظ...</span>
+                </button>
+            </div>
+        </div>
+
+        <template x-if="!captured && !uploadPreview">
             <button type="button" x-on:click="capturePhoto()" :disabled="!stream"
                     class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md disabled:opacity-50">
                 التقاط الصورة
