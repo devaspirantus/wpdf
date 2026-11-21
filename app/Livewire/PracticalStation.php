@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Actions\SaveEvaluation;
 use App\Actions\SignEvaluation;
+use App\Enums\CaseStatus;
 use App\Enums\Difficulty;
 use App\Enums\Station;
 use App\Exceptions\IncompleteStationException;
@@ -48,6 +49,10 @@ class PracticalStation extends Component
 
     public ?string $signedAt = null;
 
+    public bool $isReturned = false;
+
+    public ?string $returnNote = null;
+
     public function mount(): void
     {
         $this->scores = $this->defaultScores();
@@ -80,6 +85,16 @@ class PracticalStation extends Component
             return;
         }
 
+        $this->advancedTo = true;
+    }
+
+    public function resubmit(CaseStateMachine $stateMachine): void
+    {
+        $this->reset(['advanceError', 'missingRequirements', 'advancedTo']);
+
+        $this->case = $stateMachine->resubmitToReview($this->case);
+        $this->isReturned = false;
+        $this->returnNote = null;
         $this->advancedTo = true;
     }
 
@@ -128,6 +143,7 @@ class PracticalStation extends Component
     {
         $this->case = $this->case->fresh();
         $this->syncSignedState();
+        $this->syncReturnedState();
         $stationCompletion = app(StationCompletion::class);
         $this->requirements = $stationCompletion->requirements($this->case, Station::practical);
         $this->hasMissing = $stationCompletion->missing($this->case, Station::practical) !== [];
@@ -146,6 +162,17 @@ class PracticalStation extends Component
             $this->isSigned = false;
             $this->signedAt = null;
         }
+    }
+
+    private function syncReturnedState(): void
+    {
+        $lastReturn = $this->case->returns()->latest('created_at')->first();
+
+        $this->isReturned = $lastReturn !== null
+            && $this->case->status === CaseStatus::returned
+            && $lastReturn->returned_to_station === Station::practical;
+
+        $this->returnNote = $this->isReturned ? $lastReturn->note : null;
     }
 
     /**

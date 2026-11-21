@@ -46,4 +46,34 @@ class CaseStateMachine
             Station::review => throw new LogicException('لا توجد محطة بعد محطة المراجعة'),
         };
     }
+
+    public function returnTo(WorkerCase $case, Station $station): WorkerCase
+    {
+        $case = $case->fresh();
+
+        if ($case->status !== CaseStatus::review) {
+            throw new LogicException('يمكن الإرجاع فقط من محطة المراجعة');
+        }
+
+        if ($station === Station::review) {
+            throw new LogicException('لا يمكن إرجاع الحالة إلى محطة المراجعة');
+        }
+
+        $case->update(['status' => CaseStatus::returned->value]);
+
+        return $case->fresh();
+    }
+
+    public function resubmitToReview(WorkerCase $case): WorkerCase
+    {
+        $case = $case->fresh();
+
+        if ($case->status !== CaseStatus::returned) {
+            throw new LogicException('يمكن إعادة الإرسال للمراجعة فقط من حالة مُرجع');
+        }
+
+        $case->update(['status' => CaseStatus::review->value]);
+
+        return $case->fresh();
+    }
 }

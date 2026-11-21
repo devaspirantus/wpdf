@@ -251,15 +251,29 @@
 
             @if ($advancedTo)
                 <div class="rounded-md bg-green-50 border border-green-200 p-4 text-green-800 text-sm">
-                    تم الانتقال إلى المحطة التالية بنجاح
+                    تم إرسال الملف إلى محطة المراجعة بنجاح
                 </div>
             @endif
 
-            <div class="flex items-center justify-end">
-                <x-primary-button wire:click="advance" :disabled="$hasMissing">
-                    {{ __('المحطة التالية') }}
-                </x-primary-button>
-            </div>
+            @if ($isReturned)
+                <div class="rounded-md bg-yellow-50 border border-yellow-200 p-4 text-yellow-800 text-sm">
+                    <p class="font-semibold">تم إرجاع هذا الملف من محطة المراجعة</p>
+                    @if ($returnNote)
+                        <p class="mt-2">ملاحظة المراجع: {{ $returnNote }}</p>
+                    @endif
+                    <div class="mt-3 flex items-center justify-end">
+                        <x-primary-button wire:click="resubmit">
+                            {{ __('إرسال للمراجعة') }}
+                        </x-primary-button>
+                    </div>
+                </div>
+            @else
+                <div class="flex items-center justify-end">
+                    <x-primary-button wire:click="advance" :disabled="$hasMissing">
+                        {{ __('المحطة التالية') }}
+                    </x-primary-button>
+                </div>
+            @endif
         </div>
     </div>
 

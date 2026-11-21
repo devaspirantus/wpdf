@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Enums\CaseStatus;
 use App\Enums\Station;
 use App\Exceptions\IncompleteStationException;
 use App\Models\WorkerCase;
@@ -28,6 +29,10 @@ class TheoryStation extends Component
 
     public bool $hasMissing = true;
 
+    public bool $isReturned = false;
+
+    public ?string $returnNote = null;
+
     public function advance(CaseStateMachine $stateMachine): void
     {
         $this->reset(['advanceError', 'missingRequirements', 'advancedTo']);
@@ -43,6 +48,16 @@ class TheoryStation extends Component
             return;
         }
 
+        $this->advancedTo = true;
+    }
+
+    public function resubmit(CaseStateMachine $stateMachine): void
+    {
+        $this->reset(['advanceError', 'missingRequirements', 'advancedTo']);
+
+        $this->case = $stateMachine->resubmitToReview($this->case);
+        $this->isReturned = false;
+        $this->returnNote = null;
         $this->advancedTo = true;
     }
 
@@ -66,8 +81,22 @@ class TheoryStation extends Component
     private function refreshRequirements(): void
     {
         $this->case = $this->case->fresh();
+
+        $this->syncReturnedState();
+
         $stationCompletion = app(StationCompletion::class);
         $this->requirements = $stationCompletion->requirements($this->case, Station::theory);
         $this->hasMissing = $stationCompletion->missing($this->case, Station::theory) !== [];
+    }
+
+    private function syncReturnedState(): void
+    {
+        $lastReturn = $this->case->returns()->latest('created_at')->first();
+
+        $this->isReturned = $lastReturn !== null
+            && $this->case->status === CaseStatus::returned
+            && $lastReturn->returned_to_station === Station::theory;
+
+        $this->returnNote = $this->isReturned ? $lastReturn->note : null;
     }
 }

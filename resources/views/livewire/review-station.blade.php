@@ -207,11 +207,72 @@
                 </div>
             </div>
 
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <h3 class="font-semibold text-gray-800 mb-4">إرجاع الملف إلى محطة</h3>
+
+                    @if ($latestReturn !== null)
+                        <div class="rounded-md bg-yellow-50 border border-yellow-200 p-4 text-yellow-800 text-sm mb-4">
+                            <p class="font-semibold">إرجاع سابق إلى: {{ $latestReturn->returned_to_station->arabicName() }}</p>
+                            <p class="mt-1">ملاحظة: {{ $latestReturn->note }}</p>
+                            <p class="mt-1 text-yellow-600">تاريخ الإرجاع: {{ $latestReturn->created_at?->format('Y-m-d H:i') }}</p>
+                        </div>
+                    @endif
+
+                    <form wire:submit="submitReturn" class="space-y-4">
+                        <div>
+                            <label for="return-station" class="block text-sm font-medium text-gray-700 mb-1">المحطة المستهدفة</label>
+                            <select
+                                id="return-station"
+                                wire:model="returnStation"
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-gray-500 focus:ring-gray-500 text-sm"
+                            >
+                                <option value="">— اختر المحطة —</option>
+                                <option value="reception">{{ \App\Enums\Station::reception->arabicName() }}</option>
+                                <option value="theory">{{ \App\Enums\Station::theory->arabicName() }}</option>
+                                <option value="practical">{{ \App\Enums\Station::practical->arabicName() }}</option>
+                            </select>
+                            @error('returnStation')
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="return-note" class="block text-sm font-medium text-gray-700 mb-1">ملاحظة الإرجاع</label>
+                            <textarea
+                                id="return-note"
+                                wire:model="returnNote"
+                                rows="3"
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-gray-500 focus:ring-gray-500 text-sm"
+                            ></textarea>
+                            @error('returnNote')
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        @if ($returnError !== null)
+                            <div class="rounded-md bg-red-50 border border-red-200 p-3 text-red-800 text-sm">
+                                {{ $returnError }}
+                            </div>
+                        @endif
+
+                        <div class="flex items-center justify-end gap-3">
+                            <button
+                                type="submit"
+                                class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500"
+                            >
+                                إرجاع الملف
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div class="flex items-center justify-end">
                 <button
                     type="button"
                     disabled
-                    title="سيصبح متاحاً بعد إكمال المراجعة"
+                    title="سيصبح متاحا بعد اكتمال المراجعة"
                     class="inline-flex items-center px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest cursor-not-allowed"
                 >
                     توليد PDF
