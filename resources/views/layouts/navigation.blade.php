@@ -1,3 +1,11 @@
+@php
+    $station = match (auth()->user()->role?->value) {
+        'reception' => ['route' => route('reception'), 'label' => 'محطة الاستقبال', 'is' => 'reception'],
+        'theory', 'practical' => ['route' => route('case.search'), 'label' => 'بحث عن الحالات', 'is' => 'case.search'],
+        'review' => ['route' => route('review'), 'label' => 'محطة المراجعة', 'is' => 'review'],
+        default => null,
+    };
+@endphp
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -10,14 +18,16 @@
                     </a>
                 </div>
 
-                <!-- Navigation Links -->
+                <!-- Navigation Links (role-based, FR-01) -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('لوحة التحكم') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('review')" :active="request()->routeIs('review')">
-                        {{ __('المراجعة') }}
-                    </x-nav-link>
+                    @if($station)
+                        <x-nav-link :href="$station['route']" :active="request()->routeIs($station['is'])">
+                            {{ __($station['label']) }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -73,6 +83,11 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('لوحة التحكم') }}
             </x-responsive-nav-link>
+            @if($station)
+                <x-responsive-nav-link :href="$station['route']" :active="request()->routeIs($station['is'])">
+                    {{ __($station['label']) }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

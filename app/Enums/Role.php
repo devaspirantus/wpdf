@@ -18,4 +18,18 @@ enum Role: string
             self::review => 'رفع البيانات',
         };
     }
+
+    /**
+     * Route name the user lands on after login. Theory and practical
+     * both share the case search screen (FR-01: each station sees only
+     * its own station, which is entered via search → case link).
+     */
+    public function landRoute(): ?string
+    {
+        return match ($this) {
+            self::reception => 'reception',
+            self::theory, self::practical => 'case.search',
+            self::review => 'review',
+        };
+    }
 }
