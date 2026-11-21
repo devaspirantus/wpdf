@@ -86,6 +86,17 @@ UI text + PDF output: Arabic (RTL).
 - If a user tries to skip, return them to the current station with an Arabic
   message listing the missing items.
 
+## Local Dev Setup (permissions)
+- The container's `sail` user (uid 1337, gid 1000) writes to bind-mounted
+  files as a different uid than the host owner. If commands fail with
+  "Permission denied" on `storage/logs` (or other owned-by-container files):
+  1. Ensure group-write: `chmod -R g+w storage config bootstrap/cache` on host.
+  2. Or one-shot from host: `docker compose exec -u root -T laravel.test \
+     sh -c "chown -R 1000:1000 /var/www/html/storage /var/www/html/bootstrap/cache"`.
+  3. Re-run the failing command.
+- Livewire config is published at `config/livewire.php`; `payload.max_size`
+  is in BYTES (currently 5MB for image uploads).
+
 ## Out of scope — do NOT build (deferred to Phase 2)
 Offline/sync queues · admin panel UI · metrics/CSV · audit viewer ·
 PDF versioning UI · form editor · QR/OCR · notifications · payments ·
