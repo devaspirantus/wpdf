@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Actions\SaveEvaluation;
+use App\Actions\SignEvaluation;
 use App\Enums\Difficulty;
 use App\Enums\Station;
 use App\Exceptions\IncompleteStationException;
@@ -39,6 +40,14 @@ class PracticalStation extends Component
 
     public bool $evaluationSaved = false;
 
+    public string $evaluatorSignature = '';
+
+    public string $workerSignature = '';
+
+    public bool $isSigned = false;
+
+    public ?string $signedAt = null;
+
     public function mount(): void
     {
         $this->scores = $this->defaultScores();
@@ -52,6 +61,7 @@ class PracticalStation extends Component
                 array_keys($this->defaultScores()),
                 array_values((array) $evaluation->scores),
             );
+            $this->syncSignedState();
         }
     }
 
@@ -86,6 +96,14 @@ class PracticalStation extends Component
         $this->refreshRequirements();
     }
 
+    public function signEvaluation(SignEvaluation $action): void
+    {
+        $action->handle($this->case, $this->evaluatorSignature, $this->workerSignature);
+
+        $this->syncSignedState();
+        $this->refreshRequirements();
+    }
+
     #[On('case-document-stored')]
     public function documentStored(int $caseId): void
     {
@@ -109,9 +127,25 @@ class PracticalStation extends Component
     private function refreshRequirements(): void
     {
         $this->case = $this->case->fresh();
+        $this->syncSignedState();
         $stationCompletion = app(StationCompletion::class);
         $this->requirements = $stationCompletion->requirements($this->case, Station::practical);
         $this->hasMissing = $stationCompletion->missing($this->case, Station::practical) !== [];
+    }
+
+    private function syncSignedState(): void
+    {
+        $evaluation = $this->case->evaluation;
+
+        if ($evaluation && $evaluation->signed_at !== null) {
+            $this->isSigned = true;
+            $this->signedAt = $evaluation->signed_at->format('Y-m-d H:i');
+            $this->evaluatorSignature = (string) $evaluation->evaluator_signature;
+            $this->workerSignature = (string) $evaluation->worker_signature;
+        } else {
+            $this->isSigned = false;
+            $this->signedAt = null;
+        }
     }
 
     /**

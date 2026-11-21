@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Actions\SaveEvaluation;
+use App\Actions\SignEvaluation;
 use App\Actions\StoreCaseDocument;
 use App\Enums\CaseStatus;
 use App\Enums\Difficulty;
@@ -19,6 +20,8 @@ use Tests\TestCase;
 class PracticalStationTest extends TestCase
 {
     use RefreshDatabase;
+
+    public const PNG_SIGNATURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
     private User $user;
 
@@ -64,6 +67,11 @@ class PracticalStationTest extends TestCase
         app(SaveEvaluation::class)->handle($case, 'تصليح المضخة الرئيسية', Difficulty::medium, $scores);
     }
 
+    private function signEvaluation(WorkerCase $case): void
+    {
+        app(SignEvaluation::class)->handle($case, self::PNG_SIGNATURE, self::PNG_SIGNATURE);
+    }
+
     public function test_guests_are_redirected_to_login(): void
     {
         $case = $this->createPracticalCase();
@@ -101,6 +109,11 @@ class PracticalStationTest extends TestCase
         $this->saveEvaluation($case);
         $component->refresh();
 
+        $component->assertSeeHtml('wire:click="advance" disabled');
+
+        $this->signEvaluation($case);
+        $component->refresh();
+
         $component->assertDontSeeHtml('wire:click="advance" disabled');
     }
 
@@ -111,6 +124,8 @@ class PracticalStationTest extends TestCase
 
         $this->storePracticalPhoto($case);
         $this->saveEvaluation($case);
+        $this->signEvaluation($case);
+        $case = $case->fresh();
 
         $component = Livewire::test(PracticalStation::class, ['case' => $case])
             ->call('advance');
@@ -129,10 +144,10 @@ class PracticalStationTest extends TestCase
 
         $component = Livewire::test(PracticalStation::class, ['case' => $case])
             ->call('advance')
-            ->assertSee('المحطة المختبر العملي غير مكتملة: صورة الاختبار العملي، نموذج التقييم');
+            ->assertSee('المحطة المختبر العملي غير مكتملة: صورة الاختبار العملي، نموذج التقييم، التوقيعان على النموذج');
 
         $this->assertSame(
-            ['صورة الاختبار العملي', 'نموذج التقييم'],
+            ['صورة الاختبار العملي', 'نموذج التقييم', 'التوقيعان على النموذج'],
             $component->instance()->missingRequirements,
         );
         $this->assertDatabaseHas('worker_cases', [

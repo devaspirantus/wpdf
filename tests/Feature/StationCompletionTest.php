@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Actions\SaveEvaluation;
+use App\Actions\SignEvaluation;
 use App\Actions\StoreCaseDocument;
 use App\Enums\CaseStatus;
 use App\Enums\Difficulty;
@@ -109,11 +110,14 @@ class StationCompletionTest extends TestCase
         $this->assertTrue($completion->isComplete($this->case, Station::theory));
     }
 
-    public function test_practical_requires_the_practical_photo_and_the_evaluation(): void
+    public function test_practical_requires_the_photo_the_evaluation_and_both_signatures(): void
     {
         $completion = app(StationCompletion::class);
 
-        $this->assertSame(['صورة الاختبار العملي', 'نموذج التقييم'], $completion->missing($this->case, Station::practical));
+        $this->assertSame(
+            ['صورة الاختبار العملي', 'نموذج التقييم', 'التوقيعان على النموذج'],
+            $completion->missing($this->case, Station::practical),
+        );
 
         app(StoreCaseDocument::class)->handle(
             $this->case,
@@ -123,11 +127,27 @@ class StationCompletionTest extends TestCase
             $this->user->id,
         );
 
-        $this->assertSame(['نموذج التقييم'], $completion->missing($this->case, Station::practical));
+        $this->assertSame(
+            ['نموذج التقييم', 'التوقيعان على النموذج'],
+            $completion->missing($this->case, Station::practical),
+        );
 
         $this->saveEvaluation();
 
+        $this->assertSame(['التوقيعان على النموذج'], $completion->missing($this->case, Station::practical));
+
+        app(SignEvaluation::class)->handle(
+            $this->case,
+            $this->pngSignature(),
+            $this->pngSignature(),
+        );
+
         $this->assertTrue($completion->isComplete($this->case, Station::practical));
+    }
+
+    private function pngSignature(): string
+    {
+        return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
     }
 
     private function saveEvaluation(): void

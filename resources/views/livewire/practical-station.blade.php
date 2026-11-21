@@ -1,3 +1,65 @@
+<script>
+    window.signaturePad = () => ({
+        drawing: false,
+        ctx: null,
+        last: null,
+
+        coordinates(e) {
+            const canvas = this.$refs.canvas;
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (e.clientX - rect.left) * (canvas.width / rect.width),
+                y: (e.clientY - rect.top) * (canvas.height / rect.height),
+            };
+        },
+
+        start(e) {
+            const canvas = this.$refs.canvas;
+            if (! this.ctx) {
+                this.ctx = canvas.getContext('2d');
+            }
+            this.drawing = true;
+            canvas.setPointerCapture(e.pointerId);
+            this.last = this.coordinates(e);
+        },
+
+        move(e) {
+            if (! this.drawing || ! this.ctx) {
+                return;
+            }
+            const point = this.coordinates(e);
+            this.ctx.strokeStyle = '#1F2937';
+            this.ctx.lineWidth = 2;
+            this.ctx.lineCap = 'round';
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.last.x, this.last.y);
+            this.ctx.lineTo(point.x, point.y);
+            this.ctx.stroke();
+            this.last = point;
+        },
+
+        end() {
+            if (! this.drawing) {
+                return;
+            }
+            this.drawing = false;
+            this.commit();
+        },
+
+        clear() {
+            const canvas = this.$refs.canvas;
+            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+            this.$refs.input.value = '';
+            this.$refs.input.dispatchEvent(new Event('input'));
+        },
+
+        commit() {
+            this.$refs.input.value = this.$refs.canvas.toDataURL('image/png');
+            this.$refs.input.dispatchEvent(new Event('input'));
+        },
+    });
+</script>
+
 <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('المختبر العملي') }}
@@ -41,6 +103,22 @@
                 <div class="p-6 text-gray-900">
                     <h3 class="font-semibold text-gray-800 mb-4">نموذج التقييم العملي</h3>
 
+                    @if ($isSigned)
+                        <div class="rounded-md bg-green-50 border border-green-200 p-4 text-green-800 text-sm">
+                            <p class="font-semibold">تم توقيع النموذج من المقيّم والعامل — النموذج مقفل</p>
+                            <p class="mt-1">توقيت التوقيع: {{ $signedAt }}</p>
+                            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-600 mb-1">توقيع المقيّم</p>
+                                    <img src="{{ $evaluatorSignature }}" alt="توقيع المقيّم" class="w-full h-24 border border-gray-200 rounded-md bg-white">
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-600 mb-1">توقيع العامل</p>
+                                    <img src="{{ $workerSignature }}" alt="توقيع العامل" class="w-full h-24 border border-gray-200 rounded-md bg-white">
+                                </div>
+                            </div>
+                        </div>
+                    @else
                     @if ($evaluationSaved)
                         <div class="rounded-md bg-green-50 border border-green-200 p-3 text-green-800 text-sm mb-4">
                             تم حفظ التقييم بنجاح
@@ -117,6 +195,32 @@
                             </x-primary-button>
                         </div>
                     </form>
+
+                    @if ($case->evaluation)
+                        <div class="mt-8 border-t border-gray-200 pt-6 space-y-4">
+                            <h4 class="font-semibold text-gray-800">التوقيع على النموذج</h4>
+                            <p class="text-sm text-gray-600">يرجى من المقيّم والعامل التوقيع على النموذج لإقفاله.</p>
+
+                            @include('livewire.partials.signature-pad', [
+                                'name' => 'evaluatorSignature',
+                                'error_key' => 'evaluator_signature',
+                                'label' => 'توقيع المقيّم',
+                            ])
+
+                            @include('livewire.partials.signature-pad', [
+                                'name' => 'workerSignature',
+                                'error_key' => 'worker_signature',
+                                'label' => 'توقيع العامل',
+                            ])
+
+                            <div class="flex items-center justify-end">
+                                <x-primary-button wire:click="signEvaluation">
+                                    توقيع النموذج وإقفاله
+                                </x-primary-button>
+                            </div>
+                        </div>
+                    @endif
+                    @endif
                 </div>
             </div>
 

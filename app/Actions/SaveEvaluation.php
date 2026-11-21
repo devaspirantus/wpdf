@@ -104,7 +104,7 @@ class SaveEvaluation
 
     private function ensureEvaluatable(WorkerCase $case): void
     {
-        $existing = $case->evaluation;
+        $existing = $case->evaluation()->first();
 
         if ($existing && $existing->signed_at !== null) {
             throw ValidationException::withMessages([

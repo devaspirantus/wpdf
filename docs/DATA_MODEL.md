@@ -45,8 +45,8 @@
 | scores | json | 13 درجة (0-5) |
 | evaluator_name | string | |
 | evaluator_id_number | string | |
-| evaluator_signature | string | بيانات توقيع المقيّم |
-| worker_signature | string | بيانات توقيع العامل |
+| evaluator_signature | mediumText | بيانات توقيع المقيّم (data-URL صورة) |
+| worker_signature | mediumText | بيانات توقيع العامل (data-URL صورة) |
 | signed_at | timestamp | null = لم يوقّع بعد |
 | created_at | timestamp | |
 
@@ -78,7 +78,8 @@
 ## قواعد الحالة
 - الملف يتحرك بالترتيب فقط: reception → theory → practical → review → completed
 - الإرجاع: من review إلى محطة واحدة، والحالة تصير returned، وتُسجّل في case_returns
-- التقييم يُقفل التعديل عليه لما يمتلى التوقيعان (يُضبط signed_at)
+- التوقيعان يُرسمان على Canvas في المتصفح (Alpine inline) ويُحفظان data-URL صورة (png/jpeg، 2MB كحد أقصى) عبر Action:SignEvaluation
+- التقييم يُقفل التعديل عليه لما يمتلى التوقيعان (يُضبط signed_at)، ولا يمكن التوقيع مرتين
 - إذا رُجع الملف للعملي: يُمسح التوقيعان (يعود signed_at = null)
 
 ## فصل الطبقات (MVC)
