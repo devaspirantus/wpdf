@@ -140,6 +140,21 @@ class ReviewStationTest extends TestCase
         }
     }
 
+    public function test_returning_to_practical_shows_signature_wipe_warning(): void
+    {
+        $this->actingAsUser();
+        $case = $this->createReviewCase();
+
+        $component = Livewire::test(ReviewStation::class)
+            ->call('selectCase', $case->id)
+            ->set('returnStation', 'practical');
+
+        $component->assertSee('تنبيه');
+        $component->assertSee('سيؤدي إلى مسح التوقيعين', false);
+        $component->assertSee('إعادة التوقيع بعد الإكمال', false);
+        $component->assertSeeHtml("x-show=\"\$wire.returnStation === 'practical'\"");
+    }
+
     public function test_review_does_not_crash_when_evaluation_is_missing(): void
     {
         $this->actingAsUser();

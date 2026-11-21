@@ -242,6 +242,12 @@
                             @error('returnStation')
                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
+                            <p
+                                x-show="$wire.returnStation === 'practical'"
+                                class="hidden mt-2 rounded-md bg-orange-50 border border-orange-200 p-3 text-orange-800 text-sm"
+                            >
+                                <span class="font-semibold">تنبيه:</span> الإرجاع إلى المختبر العملي سيؤدي إلى مسح التوقيعين (المقيّم والفني)، وسيكون من الضروري إعادة التوقيع بعد الإكمال.
+                            </p>
                         </div>
 
                         <div>
