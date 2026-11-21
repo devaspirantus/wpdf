@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Actions\SaveEvaluation;
 use App\Actions\StoreCaseDocument;
 use App\Enums\CaseStatus;
+use App\Enums\Difficulty;
 use App\Enums\Station;
 use App\Livewire\CaseSearch;
 use App\Livewire\PracticalStation;
@@ -50,6 +52,18 @@ class PracticalStationTest extends TestCase
         );
     }
 
+    private function saveEvaluation(WorkerCase $case): void
+    {
+        $scores = [];
+        foreach (SaveEvaluation::SECTIONS as $criteria) {
+            foreach (array_keys($criteria) as $key) {
+                $scores[$key] = 3;
+            }
+        }
+
+        app(SaveEvaluation::class)->handle($case, 'تصليح المضخة الرئيسية', Difficulty::medium, $scores);
+    }
+
     public function test_guests_are_redirected_to_login(): void
     {
         $case = $this->createPracticalCase();
@@ -82,6 +96,11 @@ class PracticalStationTest extends TestCase
         $this->storePracticalPhoto($case);
         $component->dispatch('case-document-stored', caseId: $case->id);
 
+        $component->assertSeeHtml('wire:click="advance" disabled');
+
+        $this->saveEvaluation($case);
+        $component->refresh();
+
         $component->assertDontSeeHtml('wire:click="advance" disabled');
     }
 
@@ -91,6 +110,7 @@ class PracticalStationTest extends TestCase
         $case = $this->createPracticalCase();
 
         $this->storePracticalPhoto($case);
+        $this->saveEvaluation($case);
 
         $component = Livewire::test(PracticalStation::class, ['case' => $case])
             ->call('advance');
@@ -109,10 +129,10 @@ class PracticalStationTest extends TestCase
 
         $component = Livewire::test(PracticalStation::class, ['case' => $case])
             ->call('advance')
-            ->assertSee('المحطة المختبر العملي غير مكتملة: صورة الاختبار العملي');
+            ->assertSee('المحطة المختبر العملي غير مكتملة: صورة الاختبار العملي، نموذج التقييم');
 
         $this->assertSame(
-            ['صورة الاختبار العملي'],
+            ['صورة الاختبار العملي', 'نموذج التقييم'],
             $component->instance()->missingRequirements,
         );
         $this->assertDatabaseHas('worker_cases', [

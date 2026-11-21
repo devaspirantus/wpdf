@@ -19,6 +19,7 @@ class StationCompletion
             ],
             Station::practical => [
                 ['label' => 'صورة الاختبار العملي', 'met' => $this->hasDocument($case, $station, 'practical_photo')],
+                ['label' => 'نموذج التقييم', 'met' => $case->evaluation()->exists()],
             ],
             Station::review => [],
         };

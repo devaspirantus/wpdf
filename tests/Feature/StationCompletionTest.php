@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Actions\SaveEvaluation;
 use App\Actions\StoreCaseDocument;
 use App\Enums\CaseStatus;
+use App\Enums\Difficulty;
 use App\Enums\Station;
 use App\Models\User;
 use App\Models\WorkerCase;
@@ -107,11 +109,11 @@ class StationCompletionTest extends TestCase
         $this->assertTrue($completion->isComplete($this->case, Station::theory));
     }
 
-    public function test_practical_requires_the_practical_photo(): void
+    public function test_practical_requires_the_practical_photo_and_the_evaluation(): void
     {
         $completion = app(StationCompletion::class);
 
-        $this->assertSame(['صورة الاختبار العملي'], $completion->missing($this->case, Station::practical));
+        $this->assertSame(['صورة الاختبار العملي', 'نموذج التقييم'], $completion->missing($this->case, Station::practical));
 
         app(StoreCaseDocument::class)->handle(
             $this->case,
@@ -121,6 +123,29 @@ class StationCompletionTest extends TestCase
             $this->user->id,
         );
 
+        $this->assertSame(['نموذج التقييم'], $completion->missing($this->case, Station::practical));
+
+        $this->saveEvaluation();
+
         $this->assertTrue($completion->isComplete($this->case, Station::practical));
+    }
+
+    private function saveEvaluation(): void
+    {
+        $this->actingAs($this->user);
+
+        $scores = [];
+        foreach (SaveEvaluation::SECTIONS as $criteria) {
+            foreach (array_keys($criteria) as $key) {
+                $scores[$key] = 3;
+            }
+        }
+
+        app(SaveEvaluation::class)->handle(
+            $this->case,
+            'تصليح المضخة الرئيسية',
+            Difficulty::medium,
+            $scores,
+        );
     }
 }
