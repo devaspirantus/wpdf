@@ -194,4 +194,48 @@ class PdfGenerationTest extends TestCase
 
         $this->get(route('pdf.download', $case))->assertRedirect('/login');
     }
+
+    public function test_print_route_serves_the_pdf_inline(): void
+    {
+        $this->actingAsUser();
+        $case = $this->createCompleteCase();
+
+        app(GenerateCasePdf::class)->handle($case);
+
+        $response = $this->get(route('pdf.print', $case));
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/pdf');
+        $this->assertStringContainsString('inline', (string) $response->headers->get('Content-Disposition'));
+        $response->assertSee('%PDF-', false);
+    }
+
+    public function test_print_route_returns_404_when_no_pdf_exists(): void
+    {
+        $this->actingAsUser();
+        $case = $this->createCompleteCase();
+
+        $this->get(route('pdf.print', $case))->assertNotFound();
+    }
+
+    public function test_print_route_is_protected_from_guests(): void
+    {
+        $this->actingAsUser();
+        $case = $this->createCompleteCase();
+        $this->app['auth']->forgetGuards();
+
+        $this->get(route('pdf.print', $case))->assertRedirect('/login');
+    }
+
+    public function test_review_station_shows_print_link_after_generation(): void
+    {
+        $this->actingAsUser();
+        $case = $this->createCompleteCase();
+
+        Livewire::test(ReviewStation::class)
+            ->call('selectCase', $case->id)
+            ->call('generatePdf')
+            ->assertSee('تحميل PDF', false)
+            ->assertSee('طباعة PDF', false);
+    }
 }

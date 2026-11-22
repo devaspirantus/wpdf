@@ -28,6 +28,8 @@ class ReviewStation extends Component
 
     public ?string $pdfPath = null;
 
+    public ?string $pdfPrintPath = null;
+
     public function selectCase(int $caseId): void
     {
         $this->caseId = $caseId;
@@ -65,6 +67,7 @@ class ReviewStation extends Component
         try {
             app(GenerateCasePdf::class)->handle($case);
             $this->pdfPath = route('pdf.download', $case);
+            $this->pdfPrintPath = route('pdf.print', $case);
             $this->returnSuccess = 'تم توليد ملف الـPDF بنجاح';
         } catch (LogicException $e) {
             $this->pdfError = $e->getMessage();
@@ -158,5 +161,6 @@ class ReviewStation extends Component
     {
         $this->reset('pdfError');
         $this->reset('pdfPath');
+        $this->reset('pdfPrintPath');
     }
 }

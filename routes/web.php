@@ -35,6 +35,8 @@ Route::middleware('auth')->group(function () {
         ->name('documents.show');
     Route::get('/pdf/{case}', [CasePdfController::class, 'download'])
         ->name('pdf.download');
+    Route::get('/pdf/{case}/print', [CasePdfController::class, 'print'])
+        ->name('pdf.print');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
