@@ -84,6 +84,7 @@ class GenerateCasePdf
         $path = $dir.DIRECTORY_SEPARATOR.basename($relPath);
 
         Browsershot::html($html)
+            ->setChromePath('/usr/bin/google-chrome-stable')
             ->format('A4')
             ->margins(15, 12, 20, 12, 'mm')
             ->footerHtml('<div style="font-size:9px; font-family:sans-serif; color:#666; width:100%; text-align:center;">صفحة <span class="pageNumber"></span> من <span class="totalPages"></span></div>')
