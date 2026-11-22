@@ -33,6 +33,8 @@ class TheoryStation extends Component
 
     public ?string $returnNote = null;
 
+    public string $search = '';
+
     public function selectCase(int $id): void
     {
         $case = WorkerCase::query()->find($id);
@@ -102,17 +104,37 @@ class TheoryStation extends Component
     {
         $this->refreshRequirements();
 
-        $cases = WorkerCase::query()
-            ->where(function ($q) {
-                $q->where('status', CaseStatus::theory);
-            })->orWhere(function ($q) {
-                $q->where('status', CaseStatus::returned)
-                    ->whereHas('returns', fn ($rq) => $rq->where('returned_to_station', Station::theory));
-            })
-            ->orderByDesc('created_at')
-            ->get(['id', 'full_name', 'ticket_number', 'passport_number', 'created_at', 'status']);
+        $cases = $this->pendingCases();
 
         return view('livewire.theory-station', ['pendingCases' => $cases]);
+    }
+
+    private function pendingCases()
+    {
+        $search = trim($this->search);
+
+        return WorkerCase::query()
+            ->where(function ($q) {
+                $q->where('status', CaseStatus::theory)
+                    ->orWhere(function ($rq) {
+                        $rq->where('status', CaseStatus::returned)
+                            ->whereHas('returns', fn ($rq2) => $rq2->where('returned_to_station', Station::theory));
+                    });
+            })
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->where('full_name', 'like', '%'.$search.'%')
+                        ->orWhere('ticket_number', 'like', '%'.$search.'%');
+                });
+            })
+            ->withExists([
+                'documents as has_theory_photo' => function ($q) {
+                    $q->where('station', Station::theory)
+                        ->where('type', 'theory_photo');
+                },
+            ])
+            ->orderByDesc('created_at')
+            ->get();
     }
 
     private function refreshRequirements(): void

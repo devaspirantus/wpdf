@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Actions\StoreCaseDocument;
 use App\Enums\CaseStatus;
+use App\Enums\Station;
 use App\Livewire\TheoryStation;
 use App\Models\User;
 use App\Models\WorkerCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -98,6 +101,95 @@ class TheoryStationListTest extends TestCase
             ->assertSee('الحالات قيد المعالجة النظرية')
             ->assertSeeHtml('wire:click="selectCase('.$case->id.')"', false);
         $this->assertNull($component->instance()->case);
+    }
+
+    public function test_the_queue_is_rendered_as_a_table_with_all_columns(): void
+    {
+        $user = User::factory()->create(['role' => 'theory']);
+        $this->actingAs($user);
+
+        $this->createCase(CaseStatus::theory, 'محمود علي', 'T-3100');
+
+        $this->get('/theory')
+            ->assertOk()
+            ->assertSee('رقم التذكرة', false)
+            ->assertSee('اسم العامل', false)
+            ->assertSee('رقم الجواز', false)
+            ->assertSee('وقت التحويل', false)
+            ->assertSee('حالة التصوير', false)
+            ->assertSee('فتح المعمل', false);
+    }
+
+    public function test_the_photo_status_shows_not_taken_when_no_document_exists(): void
+    {
+        $user = User::factory()->create(['role' => 'theory']);
+        $this->actingAs($user);
+
+        $this->createCase(CaseStatus::theory, 'محمود علي', 'T-3101');
+
+        $this->get('/theory')
+            ->assertOk()
+            ->assertSee('لم يتم', false);
+    }
+
+    public function test_the_photo_status_shows_taken_when_the_theory_photo_exists(): void
+    {
+        $user = User::factory()->create(['role' => 'theory']);
+        $this->actingAs($user);
+
+        $case = $this->createCase(CaseStatus::theory, 'محمود علي', 'T-3102');
+        app(StoreCaseDocument::class)->handle(
+            $case,
+            Station::theory,
+            'theory_photo',
+            UploadedFile::fake()->image('theory.png'),
+            $user->id
+        );
+
+        $this->get('/theory')
+            ->assertOk()
+            ->assertSee('تم', false)
+            ->assertDontSee('لم يتم', false);
+    }
+
+    public function test_search_filters_cases_by_name(): void
+    {
+        $user = User::factory()->create(['role' => 'theory']);
+        $this->actingAs($user);
+
+        $this->createCase(CaseStatus::theory, 'محمود علي', 'T-3103');
+        $this->createCase(CaseStatus::theory, 'سعيد حسن', 'T-3104');
+
+        Livewire::test(TheoryStation::class)
+            ->set('search', 'محمود')
+            ->assertSee('محمود علي')
+            ->assertDontSee('سعيد حسن');
+    }
+
+    public function test_search_filters_cases_by_ticket_number(): void
+    {
+        $user = User::factory()->create(['role' => 'theory']);
+        $this->actingAs($user);
+
+        $this->createCase(CaseStatus::theory, 'محمود علي', 'T-3105');
+        $this->createCase(CaseStatus::theory, 'سعيد حسن', 'T-3106');
+
+        Livewire::test(TheoryStation::class)
+            ->set('search', 'T-3106')
+            ->assertSee('سعيد حسن')
+            ->assertDontSee('محمود علي');
+    }
+
+    public function test_search_with_no_match_shows_the_no_cases_message(): void
+    {
+        $user = User::factory()->create(['role' => 'theory']);
+        $this->actingAs($user);
+
+        $this->createCase(CaseStatus::theory, 'محمود علي', 'T-3107');
+
+        Livewire::test(TheoryStation::class)
+            ->set('search', 'Z-9999')
+            ->assertSee('لا توجد حالات بانتظار المختبر النظري');
     }
 
     public function test_deep_link_opens_the_processing_view_directly(): void
