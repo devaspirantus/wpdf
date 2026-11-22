@@ -81,7 +81,13 @@
             </div>
         @else
             <div class="max-w-xl mx-auto w-full space-y-4">
-            <div class="flex items-center justify-end">
+            <div class="flex items-center gap-4">
+                <a
+                    href="{{ route('dashboard') }}"
+                    class="text-sm text-gray-600 hover:text-gray-900"
+                >
+                    &larr; رجوع للوحة التحكم
+                </a>
                 <button
                     type="button"
                     wire:click="backToList"

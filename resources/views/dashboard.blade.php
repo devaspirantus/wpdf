@@ -1,7 +1,8 @@
 @php
     $station = match (auth()->user()->role?->value) {
         'reception' => ['route' => route('reception'), 'label' => 'محطة الاستقبال'],
-        'theory', 'practical' => ['route' => route('case.search'), 'label' => 'بحث عن الحالات'],
+        'theory' => ['route' => route('theory'), 'label' => 'بدء الاختبار النظري'],
+        'practical' => ['route' => route('case.search'), 'label' => 'بحث عن الحالات'],
         'review' => ['route' => route('review'), 'label' => 'محطة المراجعة'],
         default => null,
     };
@@ -35,6 +36,10 @@
                     @endif
                 </div>
             </div>
+
+            @if (auth()->user()->role?->value === 'theory')
+                <livewire:theory-pending-cases />
+            @endif
         </div>
     </div>
 </x-app-layout>

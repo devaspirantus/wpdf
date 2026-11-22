@@ -20,15 +20,16 @@ enum Role: string
     }
 
     /**
-     * Route name the user lands on after login. Theory and practical
-     * both share the case search screen (FR-01: each station sees only
-     * its own station, which is entered via search → case link).
+     * Route name the user lands on after login. Theory labs land on the
+     * dashboard (which shows their pending queue); practical uses the
+     * shared case search screen (FR-01: entered via search → case link).
      */
     public function landRoute(): ?string
     {
         return match ($this) {
             self::reception => 'reception',
-            self::theory, self::practical => 'case.search',
+            self::theory => 'dashboard',
+            self::practical => 'case.search',
             self::review => 'review',
         };
     }
