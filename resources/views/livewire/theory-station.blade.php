@@ -18,7 +18,14 @@
                             @foreach ($pendingCases as $item)
                                 <li class="py-3 flex items-center justify-between gap-4">
                                     <div class="text-sm">
-                                        <p class="font-medium text-gray-900">{{ $item->full_name }}</p>
+                                        <p class="font-medium text-gray-900 flex items-center gap-2">
+                                            {{ $item->full_name }}
+                                            @if ($item->status === \App\Enums\CaseStatus::returned)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    مُرجع
+                                                </span>
+                                            @endif
+                                        </p>
                                         <p class="text-gray-500 mt-1">
                                             التذكرة: {{ $item->ticket_number }}
                                             &middot; الجواز: {{ $item->passport_number }}

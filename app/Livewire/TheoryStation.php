@@ -103,9 +103,14 @@ class TheoryStation extends Component
         $this->refreshRequirements();
 
         $cases = WorkerCase::query()
-            ->where('status', CaseStatus::theory)
+            ->where(function ($q) {
+                $q->where('status', CaseStatus::theory);
+            })->orWhere(function ($q) {
+                $q->where('status', CaseStatus::returned)
+                    ->whereHas('returns', fn ($rq) => $rq->where('returned_to_station', Station::theory));
+            })
             ->orderByDesc('created_at')
-            ->get(['id', 'full_name', 'ticket_number', 'passport_number', 'created_at']);
+            ->get(['id', 'full_name', 'ticket_number', 'passport_number', 'created_at', 'status']);
 
         return view('livewire.theory-station', ['pendingCases' => $cases]);
     }
