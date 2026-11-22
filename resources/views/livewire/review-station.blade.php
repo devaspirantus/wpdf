@@ -314,7 +314,7 @@
                     wire:loading.attr="disabled"
                     class="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-500 disabled:opacity-50"
                 >
-                    <span wire:loading.remove>توليد PDF</span>
+                    <span wire:loading.remove style="backgound:black;">توليد PDF</span>
                     <span wire:loading wire:target="generatePdf" x-cloak>جارٍ التوليد...</span>
                 </button>
             </div>
