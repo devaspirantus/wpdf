@@ -19,8 +19,6 @@ class Reception extends Component
 
     public string $ticketNumber = '';
 
-    public bool $created = false;
-
     public ?WorkerCase $case = null;
 
     public bool $advancedTo = false;
@@ -39,7 +37,7 @@ class Reception extends Component
 
     public function create(CreateWorkerCase $createWorkerCase): void
     {
-        $this->reset(['created', 'case', 'advancedTo', 'advanceError', 'missingRequirements', 'requirements']);
+        $this->reset(['case', 'advancedTo', 'advanceError', 'missingRequirements', 'requirements']);
 
         $this->validate(
             rules: [
@@ -61,7 +59,6 @@ class Reception extends Component
         $this->case = $createWorkerCase->handle($this->fullName, $this->passportNumber, $this->ticketNumber);
 
         $this->reset('fullName', 'passportNumber', 'ticketNumber');
-        $this->created = true;
 
         $this->refreshRequirements();
     }

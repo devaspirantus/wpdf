@@ -80,7 +80,29 @@ class ReceptionTest extends TestCase
         $this->assertSame('', $component->instance()->fullName);
         $this->assertSame('', $component->instance()->passportNumber);
         $this->assertSame('', $component->instance()->ticketNumber);
-        $this->assertTrue($component->instance()->created);
+        $this->assertNotNull($component->instance()->case);
+    }
+
+    public function test_the_form_is_hidden_and_cameras_are_shown_after_creation(): void
+    {
+        $this->actingAsReceptionUser();
+
+        $this->get('/reception')
+            ->assertSee('اسم العامل')
+            ->assertSee('إنشاء')
+            ->assertDontSee('صورة التذكرة');
+
+        $component = Livewire::test(Reception::class)
+            ->set('fullName', 'محمود علي')
+            ->set('passportNumber', 'P1234567')
+            ->set('ticketNumber', 'T-1003')
+            ->call('create')
+            ->assertSee('صورة التذكرة')
+            ->assertSee('المحطة التالية');
+
+        $form = $component->html();
+        $this->assertStringNotContainsString('wire:submit="create"', $form);
+        $this->assertStringNotContainsString('wire:model="ticketNumber"', $form);
     }
 
     public function test_empty_fields_are_rejected(): void

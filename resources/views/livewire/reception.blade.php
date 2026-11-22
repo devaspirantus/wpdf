@@ -7,13 +7,7 @@
 
     <div class="py-12" dir="rtl">
         <div class="max-w-xl mx-auto sm:px-6 lg:px-8">
-            @if ($created)
-                <div class="mb-4 rounded-md bg-green-50 border border-green-200 p-4 text-green-800 text-sm">
-                    تم إنشاء الحالة بنجاح
-                </div>
-            @endif
-
-            @if (($created) && $case)
+            @if ($case)
                 <div class="space-y-4 mt-6">
                     <livewire:camera-capture
                         :case-id="$case->id"
@@ -78,35 +72,37 @@
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <form wire:submit="create" class="space-y-6">
-                        <div>
-                            <x-input-label for="full_name" value="اسم العامل" />
-                            <x-text-input id="full_name" wire:model="fullName" type="text" class="mt-1 block w-full" />
-                            <x-input-error class="mt-2" :messages="$errors->get('fullName')" />
-                        </div>
+            @unless ($case)
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-gray-900">
+                        <form wire:submit="create" class="space-y-6">
+                            <div>
+                                <x-input-label for="full_name" value="اسم العامل" />
+                                <x-text-input id="full_name" wire:model="fullName" type="text" class="mt-1 block w-full" />
+                                <x-input-error class="mt-2" :messages="$errors->get('fullName')" />
+                            </div>
 
-                        <div>
-                            <x-input-label for="passport_number" value="رقم الجواز" />
-                            <x-text-input id="passport_number" wire:model="passportNumber" type="text" class="mt-1 block w-full" />
-                            <x-input-error class="mt-2" :messages="$errors->get('passportNumber')" />
-                        </div>
+                            <div>
+                                <x-input-label for="passport_number" value="رقم الجواز" />
+                                <x-text-input id="passport_number" wire:model="passportNumber" type="text" class="mt-1 block w-full" />
+                                <x-input-error class="mt-2" :messages="$errors->get('passportNumber')" />
+                            </div>
 
-                        <div>
-                            <x-input-label for="ticket_number" value="رقم التذكرة" />
-                            <x-text-input id="ticket_number" wire:model="ticketNumber" type="text" class="mt-1 block w-full" />
-                            <x-input-error class="mt-2" :messages="$errors->get('ticketNumber')" />
-                        </div>
+                            <div>
+                                <x-input-label for="ticket_number" value="رقم التذكرة" />
+                                <x-text-input id="ticket_number" wire:model="ticketNumber" type="text" class="mt-1 block w-full" />
+                                <x-input-error class="mt-2" :messages="$errors->get('ticketNumber')" />
+                            </div>
 
-                        <div class="flex items-center justify-end">
-                            <x-primary-button>
-                                {{ __('إنشاء') }}
-                            </x-primary-button>
-                        </div>
-                    </form>
+                            <div class="flex items-center justify-end">
+                                <x-primary-button>
+                                    {{ __('إنشاء') }}
+                                </x-primary-button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            @endunless
         </div>
     </div>
 
