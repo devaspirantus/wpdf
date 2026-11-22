@@ -11,7 +11,7 @@
         \App\Enums\Difficulty::medium->value => 'متوسط',
         \App\Enums\Difficulty::hard->value => 'صعب',
     ];
-    $documents = $case?->documents ?? \Illuminate\Database\Eloquent\Collection::make();
+    $documents = ($case?->documents ?? \Illuminate\Database\Eloquent\Collection::make())->keyBy('type');
 @endphp
 
 <x-slot name="header">

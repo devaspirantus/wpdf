@@ -9,6 +9,7 @@ use App\Enums\CaseStatus;
 use App\Enums\Station;
 use App\Models\WorkerCase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use LogicException;
 
@@ -71,6 +72,9 @@ class ReviewStation extends Component
             $this->returnSuccess = 'تم توليد ملف الـPDF بنجاح';
         } catch (LogicException $e) {
             $this->pdfError = $e->getMessage();
+        } catch (\Throwable $e) {
+            report($e);
+            $this->pdfError = 'فشل توليد الـPDF. حدث خطأ غير متوقع، حاول مجددا.';
         }
     }
 
@@ -138,6 +142,10 @@ class ReviewStation extends Component
             }
 
             $latestReturn = $case?->returns->first();
+
+            if ($this->pdfPath === null && $case !== null) {
+                $this->detectExistingPdf($case);
+            }
         }
 
         return view('livewire.review-station', [
@@ -162,5 +170,21 @@ class ReviewStation extends Component
         $this->reset('pdfError');
         $this->reset('pdfPath');
         $this->reset('pdfPrintPath');
+    }
+
+    protected function detectExistingPdf(WorkerCase $case): void
+    {
+        $files = Storage::disk('local')->files('cases/'.$case->id.'/pdf');
+
+        $latest = collect($files)
+            ->map(fn (string $path) => basename($path))
+            ->filter(fn (string $name) => str_ends_with($name, '.pdf'))
+            ->sort()
+            ->last();
+
+        if ($latest !== null) {
+            $this->pdfPath = route('pdf.download', $case);
+            $this->pdfPrintPath = route('pdf.print', $case);
+        }
     }
 }

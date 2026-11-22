@@ -238,4 +238,28 @@ class PdfGenerationTest extends TestCase
             ->assertSee('تحميل PDF', false)
             ->assertSee('طباعة PDF', false);
     }
+
+    public function test_review_station_detects_existing_pdf_without_generation(): void
+    {
+        $this->actingAsUser();
+        $case = $this->createCompleteCase();
+
+        app(GenerateCasePdf::class)->handle($case);
+
+        Livewire::test(ReviewStation::class)
+            ->call('selectCase', $case->id)
+            ->assertSee('تحميل PDF', false)
+            ->assertSee('طباعة PDF', false);
+    }
+
+    public function test_review_station_hides_pdf_links_when_no_pdf_exists(): void
+    {
+        $this->actingAsUser();
+        $case = $this->createCompleteCase();
+
+        Livewire::test(ReviewStation::class)
+            ->call('selectCase', $case->id)
+            ->assertDontSee('تحميل PDF', false)
+            ->assertDontSee('طباعة PDF', false);
+    }
 }
