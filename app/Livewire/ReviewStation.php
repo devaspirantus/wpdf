@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Actions\GenerateCasePdf;
 use App\Actions\ReturnCase;
 use App\Actions\SaveEvaluation;
 use App\Enums\CaseStatus;
@@ -23,16 +24,51 @@ class ReviewStation extends Component
 
     public ?string $returnSuccess = null;
 
+    public ?string $pdfError = null;
+
+    public ?string $pdfPath = null;
+
     public function selectCase(int $caseId): void
     {
         $this->caseId = $caseId;
         $this->resetReturnForm();
+        $this->resetPdf();
     }
 
     public function backToList(): void
     {
         $this->reset('caseId');
         $this->resetReturnForm();
+        $this->resetPdf();
+    }
+
+    public function generatePdf(): void
+    {
+        $this->resetPdf();
+
+        $caseId = $this->caseId;
+
+        if ($caseId === null) {
+            $this->pdfError = 'لا توجد حالة مختارة';
+
+            return;
+        }
+
+        $case = WorkerCase::find($caseId);
+
+        if ($case === null) {
+            $this->pdfError = 'الحالة غير موجودة';
+
+            return;
+        }
+
+        try {
+            app(GenerateCasePdf::class)->handle($case);
+            $this->pdfPath = route('pdf.download', $case);
+            $this->returnSuccess = 'تم توليد ملف الـPDF بنجاح';
+        } catch (LogicException $e) {
+            $this->pdfError = $e->getMessage();
+        }
     }
 
     public function submitReturn(): void
@@ -116,5 +152,11 @@ class ReviewStation extends Component
         $this->reset('returnNote');
         $this->reset('returnError');
         $this->reset('returnSuccess');
+    }
+
+    protected function resetPdf(): void
+    {
+        $this->reset('pdfError');
+        $this->reset('pdfPath');
     }
 }

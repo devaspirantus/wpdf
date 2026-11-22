@@ -25,7 +25,11 @@
         @if ($returnSuccess !== null)
             <div class="rounded-md bg-green-50 border border-green-200 p-4 text-green-800 text-sm">
                 <p class="font-semibold">{{ $returnSuccess }}</p>
-                <p class="mt-1">انتقل إلى المحطة المستهدفة لاستكمال المعالجة.</p>
+                @if ($pdfPath === null)
+                    <p class="mt-1">انتقل إلى المحطة المستهدفة لاستكمال المعالجة.</p>
+                @else
+                    <p class="mt-1">يمكنك الآن تحميل ملف الـPDF من الزر أدناه.</p>
+                @endif
             </div>
         @endif
 
@@ -281,14 +285,29 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-end">
+            @if ($pdfError !== null)
+                <div class="mb-3 rounded-md bg-red-50 border border-red-200 p-3 text-red-800 text-sm">
+                    {{ $pdfError }}
+                </div>
+            @endif
+
+            <div class="flex items-center justify-end gap-3">
+                @if ($pdfPath !== null)
+                    <a
+                        href="{{ $pdfPath }}"
+                        class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500"
+                    >
+                        تحميل PDF
+                    </a>
+                @endif
                 <button
                     type="button"
-                    disabled
-                    title="سيصبح متاحا بعد اكتمال المراجعة"
-                    class="inline-flex items-center px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest cursor-not-allowed"
+                    wire:click="generatePdf"
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-emerald-500 disabled:opacity-50"
                 >
-                    توليد PDF
+                    <span wire:loading.remove>توليد PDF</span>
+                    <span wire:loading wire:target="generatePdf" x-cloak>جارٍ التوليد...</span>
                 </button>
             </div>
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CasePdfController;
 use App\Http\Controllers\DocumentImageController;
 use App\Http\Controllers\ProfileController;
 use App\Livewire\CaseSearch;
@@ -32,6 +33,8 @@ Route::middleware('auth')->group(function () {
         ->name('review');
     Route::get('/documents/{document}', [DocumentImageController::class, 'show'])
         ->name('documents.show');
+    Route::get('/pdf/{case}', [CasePdfController::class, 'download'])
+        ->name('pdf.download');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

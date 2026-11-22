@@ -49,7 +49,7 @@ class GenerateCasePdf
 
             $images[] = [
                 'label' => self::DOCUMENT_LABELS[$required['type']],
-                'path' => Storage::disk('local')->path($document->path),
+                'src' => $this->imageDataUri($document->path),
                 'time' => $document->created_at->format('d/m/Y H:i'),
             ];
         }
@@ -127,6 +127,14 @@ class GenerateCasePdf
         }
 
         return $missing;
+    }
+
+    protected function imageDataUri(string $relativePath): string
+    {
+        $disk = Storage::disk('local');
+        $mime = $disk->mimeType($relativePath) ?? 'application/octet-stream';
+
+        return 'data:'.$mime.';base64,'.base64_encode($disk->get($relativePath));
     }
 
     protected function difficultyName(Difficulty $difficulty): string
