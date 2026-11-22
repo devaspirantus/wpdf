@@ -4,7 +4,7 @@
     </p>
     <div class="rounded-md border-2 border-dashed border-gray-300 bg-gray-50 overflow-hidden">
         <canvas
-            ref="canvas"
+            x-ref="canvas"
             width="600"
             height="150"
             @pointerdown="start"
