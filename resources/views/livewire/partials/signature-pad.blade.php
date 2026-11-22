@@ -14,7 +14,7 @@
             class="block w-full h-36 touch-none cursor-crosshair select-none"
         ></canvas>
     </div>
-    <input type="hidden" ref="input" name="{{ $name }}" wire:model="{{ $name }}">
+    <input type="hidden" x-ref="input" name="{{ $name }}" wire:model="{{ $name }}">
     @error($errorKey ?? $name)
         <p class="text-red-600 text-sm mb-1">{{ $message }}</p>
     @enderror
