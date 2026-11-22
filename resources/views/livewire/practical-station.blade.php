@@ -1,65 +1,3 @@
-<script>
-    window.signaturePad = () => ({
-        drawing: false,
-        ctx: null,
-        last: null,
-
-        coordinates(e) {
-            const canvas = this.$refs.canvas;
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: (e.clientX - rect.left) * (canvas.width / rect.width),
-                y: (e.clientY - rect.top) * (canvas.height / rect.height),
-            };
-        },
-
-        start(e) {
-            const canvas = this.$refs.canvas;
-            if (! this.ctx) {
-                this.ctx = canvas.getContext('2d');
-            }
-            this.drawing = true;
-            canvas.setPointerCapture(e.pointerId);
-            this.last = this.coordinates(e);
-        },
-
-        move(e) {
-            if (! this.drawing || ! this.ctx) {
-                return;
-            }
-            const point = this.coordinates(e);
-            this.ctx.strokeStyle = '#1F2937';
-            this.ctx.lineWidth = 2;
-            this.ctx.lineCap = 'round';
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.last.x, this.last.y);
-            this.ctx.lineTo(point.x, point.y);
-            this.ctx.stroke();
-            this.last = point;
-        },
-
-        end() {
-            if (! this.drawing) {
-                return;
-            }
-            this.drawing = false;
-            this.commit();
-        },
-
-        clear() {
-            const canvas = this.$refs.canvas;
-            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-            this.$refs.input.value = '';
-            this.$refs.input.dispatchEvent(new Event('input'));
-        },
-
-        commit() {
-            this.$refs.input.value = this.$refs.canvas.toDataURL('image/png');
-            this.$refs.input.dispatchEvent(new Event('input'));
-        },
-    });
-</script>
-
 <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('المختبر العملي') }}
@@ -67,6 +5,68 @@
     </x-slot>
 
     <div class="py-12" dir="rtl">
+        <script>
+            window.signaturePad = () => ({
+                drawing: false,
+                ctx: null,
+                last: null,
+
+                coordinates(e) {
+                    const canvas = this.$refs.canvas;
+                    const rect = canvas.getBoundingClientRect();
+                    return {
+                        x: (e.clientX - rect.left) * (canvas.width / rect.width),
+                        y: (e.clientY - rect.top) * (canvas.height / rect.height),
+                    };
+                },
+
+                start(e) {
+                    const canvas = this.$refs.canvas;
+                    if (! this.ctx) {
+                        this.ctx = canvas.getContext('2d');
+                    }
+                    this.drawing = true;
+                    canvas.setPointerCapture(e.pointerId);
+                    this.last = this.coordinates(e);
+                },
+
+                move(e) {
+                    if (! this.drawing || ! this.ctx) {
+                        return;
+                    }
+                    const point = this.coordinates(e);
+                    this.ctx.strokeStyle = '#1F2937';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.lineCap = 'round';
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.last.x, this.last.y);
+                    this.ctx.lineTo(point.x, point.y);
+                    this.ctx.stroke();
+                    this.last = point;
+                },
+
+                end() {
+                    if (! this.drawing) {
+                        return;
+                    }
+                    this.drawing = false;
+                    this.commit();
+                },
+
+                clear() {
+                    const canvas = this.$refs.canvas;
+                    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                    this.$refs.input.value = '';
+                    this.$refs.input.dispatchEvent(new Event('input'));
+                },
+
+                commit() {
+                    this.$refs.input.value = this.$refs.canvas.toDataURL('image/png');
+                    this.$refs.input.dispatchEvent(new Event('input'));
+                },
+            });
+        </script>
+
         <div class="max-w-xl mx-auto sm:px-6 lg:px-8 space-y-4">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
