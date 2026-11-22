@@ -26,6 +26,18 @@ class PdfGenerationTest extends TestCase
 
     private User $user;
 
+    /** @var array<int, string> */
+    private array $tempFixtures = [];
+
+    protected function tearDown(): void
+    {
+        foreach ($this->tempFixtures as $tmp) {
+            @unlink($tmp);
+        }
+
+        parent::tearDown();
+    }
+
     private function actingAsUser(string $role = 'review'): User
     {
         $user = User::factory()->create(['role' => $role]);
@@ -46,11 +58,11 @@ class PdfGenerationTest extends TestCase
 
         $stored = app(StoreCaseDocument::class);
 
-        $stored->handle($case, Station::reception, 'worker_photo', UploadedFile::fake()->image('worker.png'), $this->user->id);
-        $stored->handle($case, Station::reception, 'passport', UploadedFile::fake()->image('passport.png'), $this->user->id);
-        $stored->handle($case, Station::reception, 'ticket', UploadedFile::fake()->image('ticket.png'), $this->user->id);
-        $stored->handle($case, Station::theory, 'theory_photo', UploadedFile::fake()->image('theory.png'), $this->user->id);
-        $stored->handle($case, Station::practical, 'practical_photo', UploadedFile::fake()->image('practical.png'), $this->user->id);
+        $stored->handle($case, Station::reception, 'worker_photo', $this->brightImageFile('worker.png'), $this->user->id);
+        $stored->handle($case, Station::reception, 'passport', $this->brightImageFile('passport.png'), $this->user->id);
+        $stored->handle($case, Station::reception, 'ticket', $this->brightImageFile('ticket.png'), $this->user->id);
+        $stored->handle($case, Station::theory, 'theory_photo', $this->brightImageFile('theory.png'), $this->user->id);
+        $stored->handle($case, Station::practical, 'practical_photo', $this->brightImageFile('practical.png'), $this->user->id);
 
         $scores = array_fill(1, 13, 3);
         $scores[1] = 5;
@@ -66,6 +78,52 @@ class PdfGenerationTest extends TestCase
         app(SignEvaluation::class)->handle($case, $signature, $signature);
 
         return $case->fresh()->load(['documents', 'evaluation']);
+    }
+
+    private function brightImageFile(string $name): UploadedFile
+    {
+        $img = imagecreatetruecolor(640, 480);
+        $background = imagecolorallocate($img, 240, 240, 245);
+        $red = imagecolorallocate($img, 200, 30, 30);
+        imagefill($img, 0, 0, $background);
+        imagefilledrectangle($img, 120, 90, 520, 390, $red);
+
+        $tmp = tempnam(sys_get_temp_dir(), 'wpdf-fix-').'.jpg';
+        imagejpeg($img, $tmp, 90);
+        imagedestroy($img);
+
+        $this->tempFixtures[] = $tmp;
+
+        return new UploadedFile($tmp, $name, 'image/jpeg', null, true);
+    }
+
+    private function assertPdfEmbedsBrightImage(string $path): void
+    {
+        $content = file_get_contents($path);
+        $this->assertTrue(
+            preg_match_all('/\xFF\xD8\xFF.*?\xFF\xD9/s', $content, $matches) > 0,
+            'No JPEG (DCT) image found inside the PDF.',
+        );
+
+        $jpeg = '';
+        foreach ($matches[0] as $candidate) {
+            if (strlen($candidate) > strlen($jpeg)) {
+                $jpeg = $candidate;
+            }
+        }
+
+        $tmp = tempnam(sys_get_temp_dir(), 'wpdf-pdf-').'.jpg';
+        file_put_contents($tmp, $jpeg);
+        $this->tempFixtures[] = $tmp;
+
+        $decoded = @imagecreatefromjpeg($tmp);
+        $this->assertTrue($decoded !== false, 'Embedded JPEG could not be decoded.');
+
+        $pixel = imagecolorat($decoded, 320, 240);
+        imagedestroy($decoded);
+        $this->assertGreaterThan(120, ($pixel >> 16) & 0xFF, 'Center pixel R too low (image may be black)');
+        $this->assertLessThan(120, ($pixel >> 8) & 0xFF, 'Center pixel G too high (image may be black)');
+        $this->assertLessThan(120, $pixel & 0xFF, 'Center pixel B too high (image may be black)');
     }
 
     public function test_pdf_cannot_be_generated_when_documents_are_missing(): void
@@ -96,11 +154,11 @@ class PdfGenerationTest extends TestCase
 
         $stored = app(StoreCaseDocument::class);
 
-        $stored->handle($case, Station::reception, 'worker_photo', UploadedFile::fake()->image('worker.png'), $this->user->id);
-        $stored->handle($case, Station::reception, 'passport', UploadedFile::fake()->image('passport.png'), $this->user->id);
-        $stored->handle($case, Station::reception, 'ticket', UploadedFile::fake()->image('ticket.png'), $this->user->id);
-        $stored->handle($case, Station::theory, 'theory_photo', UploadedFile::fake()->image('theory.png'), $this->user->id);
-        $stored->handle($case, Station::practical, 'practical_photo', UploadedFile::fake()->image('practical.png'), $this->user->id);
+        $stored->handle($case, Station::reception, 'worker_photo', $this->brightImageFile('worker.png'), $this->user->id);
+        $stored->handle($case, Station::reception, 'passport', $this->brightImageFile('passport.png'), $this->user->id);
+        $stored->handle($case, Station::reception, 'ticket', $this->brightImageFile('ticket.png'), $this->user->id);
+        $stored->handle($case, Station::theory, 'theory_photo', $this->brightImageFile('theory.png'), $this->user->id);
+        $stored->handle($case, Station::practical, 'practical_photo', $this->brightImageFile('practical.png'), $this->user->id);
 
         $scores = array_fill(1, 13, 3);
         $scores[1] = 5;
@@ -133,6 +191,8 @@ class PdfGenerationTest extends TestCase
 
         $expectedName = $case->ticket_number.'_'.now()->format('Y-m-d').'_v1.pdf';
         $this->assertStringEndsWith($expectedName, $relative);
+
+        $this->assertPdfEmbedsBrightImage($absolute);
     }
 
     public function test_generate_pdf_button_shows_error_when_incomplete(): void

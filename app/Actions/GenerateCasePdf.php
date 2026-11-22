@@ -89,6 +89,8 @@ class GenerateCasePdf
             ->footerHtml('<div style="font-size:9px; font-family:sans-serif; color:#666; width:100%; text-align:center;">صفحة <span class="pageNumber"></span> من <span class="totalPages"></span></div>')
             ->showBrowserHeaderAndFooter()
             ->addChromiumArguments(['no-sandbox', 'disable-dev-shm-usage'])
+            ->waitUntilNetworkIdle(false)
+            ->delay(500)
             ->save($path);
 
         if (! file_exists($path)) {

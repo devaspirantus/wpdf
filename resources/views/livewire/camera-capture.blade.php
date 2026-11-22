@@ -8,6 +8,7 @@
         uploadPreview: '',
         uploadFile: null,
         cameraFileError: '',
+        captureWarning: '',
 
         onFileSelected(event) {
             this.uploadPreview = '';
@@ -53,6 +54,7 @@
             this.cameraError = '';
             this.rawError = '';
             this.showErrorDetails = false;
+            this.captureWarning = '';
 
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 this.cameraError = 'المتصفح لا يدعم الوصول إلى الكاميرا في هذا السياق (يتطلب اتصالاً آمناً).';
@@ -91,9 +93,32 @@
         capturePhoto() {
             const video = this.$refs.video;
             const canvas = this.$refs.canvas;
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-            canvas.getContext('2d').drawImage(video, 0, 0);
+
+            if (!video || video.readyState < 2 || !video.videoWidth) {
+                this.captureWarning = 'لم تكن الكاميرا جاهزة بعد. يرجى الانتظار حتى تظهر الصورة المباشرة ثم أعد المحاولة.';
+                return;
+            }
+
+            this.captureWarning = '';
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            let allBlack = true;
+            for (let i = 0; i < data.length; i += 400) {
+                if (data[i] > 10 || data[i + 1] > 10 || data[i + 2] > 10) {
+                    allBlack = false;
+                    break;
+                }
+            }
+
+            if (allBlack) {
+                this.captureWarning = 'تم التقاط صورة سوداء بالكامل. يرجى التأكد من الإضاءة وإطار الصورة ثم إعادة الالتقاط.';
+                return;
+            }
+
             this.preview = canvas.toDataURL('image/png');
             this.captured = true;
             this.stopCamera();
@@ -185,6 +210,8 @@
                     class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md disabled:opacity-50">
                 التقاط الصورة
             </button>
+            <p x-show="captureWarning" x-cloak x-text="captureWarning"
+               class="mt-2 text-sm text-amber-600"></p>
         </template>
 
         <template x-if="captured">
