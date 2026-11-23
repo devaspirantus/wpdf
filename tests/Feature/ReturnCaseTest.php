@@ -10,6 +10,7 @@ use App\Enums\CaseStatus;
 use App\Enums\Difficulty;
 use App\Enums\Station;
 use App\Livewire\PracticalStation;
+use App\Livewire\Reception;
 use App\Livewire\ReviewStation;
 use App\Livewire\TheoryStation;
 use App\Models\CaseReturn;
@@ -98,6 +99,25 @@ class ReturnCaseTest extends TestCase
             'returned_by' => $this->user->id,
         ]);
         $this->assertSame(Station::reception, $return->returned_to_station);
+        $this->assertSame(0, $case->documents()->where('station', Station::reception)->count());
+    }
+
+    public function test_reception_cannot_resubmit_before_reuploading_documents(): void
+    {
+        $this->actingAsUser('reception');
+        $case = $this->createReviewCase();
+        $this->storeAllPhotos($case);
+        $this->createSignedEvaluation($case);
+        $this->returnCase($case, Station::reception, 'أعد المستندات');
+
+        Livewire::test(Reception::class)
+            ->call('selectCase', $case->id)
+            ->call('resubmit')
+            ->assertSet('advancedTo', false)
+            ->assertSet('isReturned', true)
+            ->assertSee('لا يمكن الإرجاع للمراجعة قبل اكتمال مستندات الاستقبال');
+
+        $this->assertSame(CaseStatus::returned, $case->fresh()->status);
     }
 
     public function test_return_to_theory_sets_status_and_creates_record(): void
@@ -116,6 +136,7 @@ class ReturnCaseTest extends TestCase
             'note' => 'أخطاء في التقرير النظري',
         ]);
         $this->assertSame(Station::theory, $return->returned_to_station);
+        $this->assertSame(0, $case->documents()->where('station', Station::theory)->count());
     }
 
     public function test_return_to_practical_clears_evaluation_signatures(): void
@@ -138,6 +159,7 @@ class ReturnCaseTest extends TestCase
         $this->assertNull($evaluation->evaluator_signature);
         $this->assertNull($evaluation->worker_signature);
         $this->assertNull($evaluation->signed_at);
+        $this->assertSame(0, $case->documents()->where('station', Station::practical)->count());
     }
 
     public function test_return_to_reception_does_not_clear_evaluation_signatures(): void
@@ -288,6 +310,13 @@ class ReturnCaseTest extends TestCase
         $this->createSignedEvaluation($case);
 
         $this->returnCase($case, Station::theory, 'ملاحظة');
+        app(StoreCaseDocument::class)->handle(
+            $case,
+            Station::theory,
+            'theory_photo',
+            UploadedFile::fake()->image('theory-new.png'),
+            $this->user->id,
+        );
 
         $component = Livewire::test(TheoryStation::class, ['case' => $case])
             ->call('resubmit');
@@ -295,6 +324,23 @@ class ReturnCaseTest extends TestCase
         $component->assertSet('isReturned', false);
         $component->assertSet('advancedTo', true);
         $this->assertSame(CaseStatus::review, $case->fresh()->status);
+    }
+
+    public function test_theory_station_cannot_resubmit_before_reuploading_document(): void
+    {
+        $this->actingAsUser('theory');
+        $case = $this->createReviewCase();
+        $this->storeAllPhotos($case);
+        $this->createSignedEvaluation($case);
+        $this->returnCase($case, Station::theory, 'أعد الصورة');
+
+        Livewire::test(TheoryStation::class, ['case' => $case])
+            ->call('resubmit')
+            ->assertSet('advancedTo', false)
+            ->assertSet('isReturned', true)
+            ->assertSee('لا يمكن الإرجاع للمراجعة قبل اكتمال مستندات المختبر النظري');
+
+        $this->assertSame(CaseStatus::returned, $case->fresh()->status);
     }
 
     public function test_practical_station_shows_resubmit_banner_when_returned(): void
@@ -321,6 +367,21 @@ class ReturnCaseTest extends TestCase
         $this->createSignedEvaluation($case);
 
         $this->returnCase($case, Station::practical, 'ملاحظة');
+        app(StoreCaseDocument::class)->handle(
+            $case,
+            Station::practical,
+            'practical_photo',
+            UploadedFile::fake()->image('practical-new.png'),
+            $this->user->id,
+        );
+        app(SaveEvaluation::class)->handle(
+            $case,
+            'مهمة مصححة',
+            Difficulty::medium,
+            array_fill(1, 13, 3),
+        );
+        $signature = 'data:image/png;base64,'.base64_encode('new-signature');
+        app(SignEvaluation::class)->handle($case, $signature, $signature);
 
         $component = Livewire::test(PracticalStation::class, ['case' => $case])
             ->call('resubmit');
@@ -328,6 +389,23 @@ class ReturnCaseTest extends TestCase
         $component->assertSet('isReturned', false);
         $component->assertSet('advancedTo', true);
         $this->assertSame(CaseStatus::review, $case->fresh()->status);
+    }
+
+    public function test_practical_station_cannot_resubmit_before_reupload_and_resigning(): void
+    {
+        $this->actingAsUser('practical');
+        $case = $this->createReviewCase();
+        $this->storeAllPhotos($case);
+        $this->createSignedEvaluation($case);
+        $this->returnCase($case, Station::practical, 'أعد الصورة والتوقيع');
+
+        Livewire::test(PracticalStation::class, ['case' => $case])
+            ->call('resubmit')
+            ->assertSet('advancedTo', false)
+            ->assertSet('isReturned', true)
+            ->assertSee('لا يمكن الإرجاع للمراجعة قبل اكتمال مستندات المختبر العملي');
+
+        $this->assertSame(CaseStatus::returned, $case->fresh()->status);
     }
 
     public function test_cannot_resubmit_when_not_in_returned_status(): void

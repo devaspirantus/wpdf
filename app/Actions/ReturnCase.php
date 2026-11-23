@@ -42,6 +42,20 @@ class ReturnCase
                 'returned_by' => $userId,
             ]);
 
+            if ($station === Station::reception) {
+                $case->documents()
+                    ->where('station', Station::reception)
+                    ->delete();
+            } elseif ($station === Station::theory) {
+                $case->documents()
+                    ->where('station', Station::theory)
+                    ->delete();
+            } elseif ($station === Station::practical) {
+                $case->documents()
+                    ->where('station', Station::practical)
+                    ->delete();
+            }
+
             if ($station === Station::practical) {
                 $evaluation = $case->evaluation()->first();
 

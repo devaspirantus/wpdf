@@ -92,6 +92,14 @@ class PracticalStation extends Component
     {
         $this->reset(['advanceError', 'missingRequirements', 'advancedTo']);
 
+        $missing = app(StationCompletion::class)->missing($this->case->fresh(), Station::practical);
+        if ($missing !== []) {
+            $this->advanceError = 'لا يمكن الإرجاع للمراجعة قبل اكتمال مستندات المختبر العملي';
+            $this->missingRequirements = $missing;
+
+            return;
+        }
+
         $this->case = $stateMachine->resubmitToReview($this->case);
         $this->isReturned = false;
         $this->returnNote = null;

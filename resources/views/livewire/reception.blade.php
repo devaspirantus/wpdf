@@ -68,7 +68,7 @@
                                 <p class="mt-2">ملاحظة الإرجاع: {{ $returnNote }}</p>
                             @endif
                             <div class="mt-3 flex items-center justify-end">
-                                <x-primary-button wire:click="resubmit">
+                                <x-primary-button wire:click="resubmit" :disabled="$hasMissing">
                                     {{ __('إرجاع إلى رفع البيانات') }}
                                 </x-primary-button>
                             </div>

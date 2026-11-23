@@ -120,6 +120,14 @@ class Reception extends Component
 
         $this->reset(['advanceError', 'missingRequirements', 'advancedTo']);
 
+        $missing = app(StationCompletion::class)->missing($this->case->fresh(), Station::reception);
+        if ($missing !== []) {
+            $this->advanceError = 'لا يمكن الإرجاع للمراجعة قبل اكتمال مستندات الاستقبال';
+            $this->missingRequirements = $missing;
+
+            return;
+        }
+
         $this->case = $stateMachine->resubmitToReview($this->case);
         $this->isReturned = false;
         $this->returnNote = null;

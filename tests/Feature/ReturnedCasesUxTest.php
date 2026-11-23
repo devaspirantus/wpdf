@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\StoreCaseDocument;
 use App\Enums\CaseStatus;
 use App\Enums\Station;
 use App\Livewire\Reception;
@@ -10,6 +11,7 @@ use App\Models\CaseReturn;
 use App\Models\User;
 use App\Models\WorkerCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -165,6 +167,10 @@ class ReturnedCasesUxTest extends TestCase
     {
         $this->asRole('reception');
         $case = $this->returnedCase(Station::reception);
+        $store = app(StoreCaseDocument::class);
+        $store->handle($case, Station::reception, 'worker_photo', UploadedFile::fake()->image('worker.png'), auth()->id());
+        $store->handle($case, Station::reception, 'passport', UploadedFile::fake()->image('passport.png'), auth()->id());
+        $store->handle($case, Station::reception, 'ticket', UploadedFile::fake()->image('ticket.png'), auth()->id());
 
         Livewire::test(Reception::class)
             ->call('selectCase', $case->id)

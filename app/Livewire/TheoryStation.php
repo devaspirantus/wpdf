@@ -85,6 +85,14 @@ class TheoryStation extends Component
 
         $this->reset(['advanceError', 'missingRequirements', 'advancedTo']);
 
+        $missing = app(StationCompletion::class)->missing($this->case->fresh(), Station::theory);
+        if ($missing !== []) {
+            $this->advanceError = 'لا يمكن الإرجاع للمراجعة قبل اكتمال مستندات المختبر النظري';
+            $this->missingRequirements = $missing;
+
+            return;
+        }
+
         $this->case = $stateMachine->resubmitToReview($this->case);
         $this->isReturned = false;
         $this->returnNote = null;
