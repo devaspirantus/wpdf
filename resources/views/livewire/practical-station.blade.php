@@ -1,5 +1,5 @@
 <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-ink leading-tight">
             {{ __('المختبر العملي') }}
         </h2>
     </x-slot>
@@ -71,31 +71,31 @@
             <div class="flex items-center gap-4">
                 <a
                     href="{{ route('dashboard') }}"
-                    class="text-sm text-gray-600 hover:text-gray-900"
+                    class="text-sm text-primary-dark hover:text-ink"
                 >
                     &larr; رجوع للوحة التحكم
                 </a>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <h3 class="font-semibold text-gray-800 mb-3">بيانات العامل</h3>
+            <div class="dga-card">
+                <div class="dga-card-body">
+                    <h3 class="font-semibold text-ink mb-3">بيانات العامل</h3>
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                         <div>
-                            <dt class="text-gray-500">الاسم</dt>
-                            <dd class="mt-1 font-medium text-gray-900">{{ $case->full_name }}</dd>
+                            <dt class="text-muted">الاسم</dt>
+                            <dd class="mt-1 font-medium text-ink">{{ $case->full_name }}</dd>
                         </div>
                         <div>
-                            <dt class="text-gray-500">رقم الجواز</dt>
-                            <dd class="mt-1 font-medium text-gray-900">{{ $case->passport_number }}</dd>
+                            <dt class="text-muted">رقم الجواز</dt>
+                            <dd class="mt-1 font-medium text-ink">{{ $case->passport_number }}</dd>
                         </div>
                         <div>
-                            <dt class="text-gray-500">رقم التذكرة</dt>
-                            <dd class="mt-1 font-medium text-gray-900">{{ $case->ticket_number }}</dd>
+                            <dt class="text-muted">رقم التذكرة</dt>
+                            <dd class="mt-1 font-medium text-ink">{{ $case->ticket_number }}</dd>
                         </div>
                         <div>
-                            <dt class="text-gray-500">الحالة الحالية</dt>
-                            <dd class="mt-1 font-medium text-gray-900">{{ $case->status->arabicName() }}</dd>
+                            <dt class="text-muted">الحالة الحالية</dt>
+                            <dd class="mt-1 font-medium text-ink">{{ $case->status->arabicName() }}</dd>
                         </div>
                     </dl>
                 </div>
@@ -108,60 +108,60 @@
                 label="صورة الاختبار العملي"
             />
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <h3 class="font-semibold text-gray-800 mb-4">نموذج التقييم العملي</h3>
+            <div class="dga-card">
+                <div class="dga-card-body">
+                    <h3 class="font-semibold text-ink mb-4">نموذج التقييم العملي</h3>
 
                     @if ($isSigned)
-                        <div class="rounded-md bg-green-50 border border-green-200 p-4 text-green-800 text-sm">
+                        <div class="rounded-md bg-success/10 border border-success/25 p-4 text-success text-sm">
                             <p class="font-semibold">تم توقيع النموذج من المقيّم والعامل — النموذج مقفل</p>
                             <p class="mt-1">توقيت التوقيع: {{ $signedAt }}</p>
                             <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <p class="text-xs text-gray-600 mb-1">توقيع المقيّم</p>
-                                    <img src="{{ $evaluatorSignature }}" alt="توقيع المقيّم" class="w-full h-24 border border-gray-200 rounded-md bg-white">
+                                    <p class="text-xs text-muted mb-1">توقيع المقيّم</p>
+                                    <img src="{{ $evaluatorSignature }}" alt="توقيع المقيّم" class="w-full h-24 border border-line rounded-md bg-white">
                                 </div>
                                 <div>
-                                    <p class="text-xs text-gray-600 mb-1">توقيع العامل</p>
-                                    <img src="{{ $workerSignature }}" alt="توقيع العامل" class="w-full h-24 border border-gray-200 rounded-md bg-white">
+                                    <p class="text-xs text-muted mb-1">توقيع العامل</p>
+                                    <img src="{{ $workerSignature }}" alt="توقيع العامل" class="w-full h-24 border border-line rounded-md bg-white">
                                 </div>
                             </div>
                         </div>
                     @else
                     @if ($evaluationSaved)
-                        <div class="rounded-md bg-green-50 border border-green-200 p-3 text-green-800 text-sm mb-4">
+                        <div class="rounded-md bg-success/10 border border-success/25 p-3 text-success text-sm mb-4">
                             تم حفظ التقييم بنجاح
                         </div>
                     @endif
 
                     <form wire:submit="saveEvaluation" class="space-y-6">
                         @error('task')
-                            <p class="text-red-600 text-sm">{{ $message }}</p>
+                            <p class="text-danger text-sm">{{ $message }}</p>
                         @enderror
                         @error('difficulty')
-                            <p class="text-red-600 text-sm">{{ $message }}</p>
+                            <p class="text-danger text-sm">{{ $message }}</p>
                         @enderror
 
                         <div>
-                            <label for="task" class="block text-sm font-medium text-gray-700 mb-1">
+                            <label for="task" class="block text-sm font-medium text-muted mb-1">
                                 المهمة المطلوب تنفيذها
                             </label>
                             <input
                                 id="task"
                                 type="text"
                                 wire:model.live="task"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-opacity-50"
+                                class="mt-1 block w-full rounded-md border-line shadow-sm focus:ring focus:ring-primary"
                             >
                         </div>
 
                         <div>
-                            <label for="difficulty" class="block text-sm font-medium text-gray-700 mb-1">
+                            <label for="difficulty" class="block text-sm font-medium text-muted mb-1">
                                 مستوى الصعوبة
                             </label>
                             <select
                                 id="difficulty"
                                 wire:model.live="difficulty"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-opacity-50"
+                                class="mt-1 block w-full rounded-md border-line shadow-sm focus:ring focus:ring-primary"
                             >
                                 <option value="easy">سهل</option>
                                 <option value="medium">متوسط</option>
@@ -171,21 +171,21 @@
 
                         @foreach ($sections as $sectionTitle => $criteria)
                             <fieldset>
-                                <legend class="font-semibold text-gray-800 mb-2">{{ $sectionTitle }}</legend>
-                                <ol class="divide-y divide-gray-200">
+                                <legend class="font-semibold text-ink mb-2">{{ $sectionTitle }}</legend>
+                                <ol class="divide-y divide-line">
                                     @foreach ($criteria as $key => $criterionText)
                                         <li class="py-3">
                                             <div class="flex items-start justify-between gap-4">
-                                                <p class="text-sm text-gray-700">
-                                                    <span class="font-medium text-gray-900">{{ $key }}. </span>
+                                                <p class="text-sm text-muted">
+                                                    <span class="font-medium text-ink">{{ $key }}. </span>
                                                     {{ $criterionText }}
                                                 </p>
                                                 @error("scores.{$key}")
-                                                    <p class="text-red-600 text-sm whitespace-nowrap">{{ $message }}</p>
+                                                    <p class="text-danger text-sm whitespace-nowrap">{{ $message }}</p>
                                                 @enderror
                                                 <select
                                                     wire:model.live="scores.{{ $key }}"
-                                                    class="shrink-0 rounded-md border-gray-300 text-sm shadow-sm focus:ring focus:ring-opacity-50"
+                                                    class="shrink-0 rounded-md border-line text-sm shadow-sm focus:ring focus:ring-primary"
                                                 >
                                                     @foreach ($scale as $value => $label)
                                                         <option value="{{ $value }}">{{ $label }}</option>
@@ -206,9 +206,9 @@
                     </form>
 
                     @if ($case->evaluation)
-                        <div class="mt-8 border-t border-gray-200 pt-6 space-y-4">
-                            <h4 class="font-semibold text-gray-800">التوقيع على النموذج</h4>
-                            <p class="text-sm text-gray-600">يرجى من المقيّم والعامل التوقيع على النموذج لإقفاله.</p>
+                        <div class="mt-8 border-t border-line pt-6 space-y-4">
+                            <h4 class="font-semibold text-ink">التوقيع على النموذج</h4>
+                            <p class="text-sm text-muted">يرجى من المقيّم والعامل التوقيع على النموذج لإقفاله.</p>
 
                             @include('livewire.partials.signature-pad', [
                                 'name' => 'evaluatorSignature',
@@ -233,11 +233,11 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg border border-gray-200 p-4">
-                <h3 class="font-semibold text-gray-800 mb-3">متطلبات استكمال المحطة</h3>
+            <div class="dga-card p-4">
+                <h3 class="font-semibold text-ink mb-3">متطلبات استكمال المحطة</h3>
                 <ul class="space-y-2 text-sm">
                     @foreach ($requirements as $requirement)
-                        <li class="flex items-center gap-2 {{ $requirement['met'] ? 'text-green-700' : 'text-gray-600' }}">
+                        <li class="flex items-center gap-2 {{ $requirement['met'] ? 'text-success' : 'text-muted' }}">
                             <span>{{ $requirement['met'] ? '✓' : '○' }}</span>
                             <span>{{ $requirement['label'] }}</span>
                         </li>
@@ -246,7 +246,7 @@
             </div>
 
             @if ($advanceError)
-                <div class="rounded-md bg-red-50 border border-red-200 p-4 text-red-800 text-sm">
+                <div class="rounded-md bg-danger/10 border border-danger/25 p-4 text-danger text-sm">
                     <p class="font-semibold">{{ $advanceError }}</p>
                     @if (count($missingRequirements) > 0)
                         <ul class="mt-2 list-disc pr-5">
@@ -259,13 +259,13 @@
             @endif
 
             @if ($advancedTo)
-                <div class="rounded-md bg-green-50 border border-green-200 p-4 text-green-800 text-sm">
+                <div class="rounded-md bg-success/10 border border-success/25 p-4 text-success text-sm">
                     تم إرسال الملف إلى محطة المراجعة بنجاح
                 </div>
             @endif
 
             @if ($isReturned)
-                <div class="rounded-md bg-yellow-50 border border-yellow-200 p-4 text-yellow-800 text-sm">
+                <div class="rounded-md bg-warning/10 border border-warning/40 p-4 text-navy text-sm">
                     <p class="font-semibold">تم إرجاع هذا الملف من محطة المراجعة</p>
                     @if ($returnNote)
                         <p class="mt-2">ملاحظة الإرجاع: {{ $returnNote }}</p>

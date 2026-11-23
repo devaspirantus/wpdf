@@ -1,10 +1,10 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
+        <h2 class="text-lg font-bold text-ink">
             {{ __('تحديث كلمة المرور') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="mt-1 text-sm text-muted">
             {{ __('تأكد من استخدام كلمة مرور طويلة وعشوائية لحسابك حفاظًا على أمانه.') }}
         </p>
     </header>
@@ -40,7 +40,7 @@
                     x-show="show"
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
+                    class="text-sm text-muted"
                 >{{ __('تم الحفظ.') }}</p>
             @endif
         </div>

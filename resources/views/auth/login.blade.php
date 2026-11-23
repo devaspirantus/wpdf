@@ -27,14 +27,14 @@
         <!-- Remember Me -->
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('تذكّر بي') }}</span>
+                <input id="remember_me" type="checkbox" class="rounded border-line text-primary shadow-sm focus:ring-primary/30" name="remember">
+                <span class="ms-2 text-sm text-muted">{{ __('تذكّر بي') }}</span>
             </label>
         </div>
 
         <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
+                <a class="underline text-sm text-primary-dark hover:text-ink rounded-md focus:outline-none focus:ring-2 focus:ring-primary/30" href="{{ route('password.request') }}">
                     {{ __('هل نسيت كلمة المرور؟') }}
                 </a>
             @endif

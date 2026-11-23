@@ -7,31 +7,38 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=tajawal:400,500,700&display=swap" rel="stylesheet" />
-
         <!-- Scripts -->
         @livewireStyles
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+        <div class="min-h-screen bg-surface">
+            <div class="bg-navy">
+                <div class="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-xs text-white/80 sm:px-6 lg:px-8">
+                    <span>منصة اختبارات العمالة — وزارة الموارد البشرية</span>
+                    <span>{{ now()->locale('ar')->format('j M Y') }}</span>
+                </div>
+            </div>
+
             @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+                <header class="bg-white shadow-sm">
+                    <div class="mx-auto max-w-7xl border-b border-line px-4 pb-4 pt-6 sm:px-6 lg:px-8">
+                        <h1 class="text-xl font-bold text-primary-dark sm:text-2xl">{{ $header }}</h1>
                     </div>
                 </header>
             @endisset
 
             <!-- Page Content -->
-            <main>
+            <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 {{ $slot }}
             </main>
+
+            <footer class="mx-auto max-w-7xl px-4 pb-6 text-center text-xs text-muted sm:px-6 lg:px-8">
+                © {{ now()->year }} — جميع الحقوق محفوظة
+            </footer>
         </div>
 
         @livewireScripts

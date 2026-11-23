@@ -1,10 +1,10 @@
 <section class="space-y-6">
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
+        <h2 class="text-lg font-bold text-ink">
             {{ __('حذف الحساب') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="mt-1 text-sm text-muted">
             {{ __('بمجرد حذف حسابك، سيتم حذف جميع الموارد والبيانات الخاصة به نهائيًا. قبل حذف حسابك، يُرجى تنزيل أي بيانات أو معلومات تود الاحتفاظ بها.') }}
         </p>
     </header>
@@ -19,11 +19,11 @@
             @csrf
             @method('delete')
 
-            <h2 class="text-lg font-medium text-gray-900">
+            <h2 class="text-lg font-bold text-ink">
                 {{ __('هل أنت متأكد من رغبتك في حذف حسابك؟') }}
             </h2>
 
-            <p class="mt-1 text-sm text-gray-600">
+            <p class="mt-1 text-sm text-muted">
                 {{ __('بمجرد حذف حسابك، سيتم حذف جميع الموارد والبيانات الخاصة به نهائيًا. يُرجى إدخال كلمة المرور للتأكيد على رغبتك في حذف حسابك نهائيًا.') }}
             </p>
 

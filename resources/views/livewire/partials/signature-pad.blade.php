@@ -1,8 +1,8 @@
 <div wire:ignore x-data="signaturePad()">
-    <p class="block text-sm font-medium text-gray-700 mb-1">
+    <p class="block text-sm font-medium text-ink mb-1">
         {{ $label }}
     </p>
-    <div class="rounded-md border-2 border-dashed border-gray-300 bg-gray-50 overflow-hidden">
+    <div class="rounded-md border-2 border-dashed border-line bg-surface overflow-hidden">
         <canvas
             x-ref="canvas"
             width="600"
@@ -16,12 +16,12 @@
     </div>
     <input type="hidden" x-ref="input" name="{{ $name }}" wire:model="{{ $name }}">
     @error($errorKey ?? $name)
-        <p class="text-red-600 text-sm mb-1">{{ $message }}</p>
+        <p class="text-danger text-sm mb-1">{{ $message }}</p>
     @enderror
     <div class="flex items-center justify-end mt-1">
-        <button type="button" @click="clear" class="text-sm text-gray-500 hover:text-gray-700 underline">
+        <button type="button" @click="clear" class="text-sm text-muted hover:text-ink underline">
             مسح التوقيع
         </button>
     </div>
-    <p class="text-xs text-gray-400 mt-1">وقّع في المساحة أعلاه</p>
+    <p class="text-xs text-muted mt-1">وقّع في المساحة أعلاه</p>
 </div>

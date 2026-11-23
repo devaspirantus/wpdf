@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
+    <div class="mb-4 text-sm text-muted">
         {{ __('هذه منطقة آمنة في التطبيق. يرجى تأكيد كلمة المرور قبل المتابعة.') }}
     </div>
 

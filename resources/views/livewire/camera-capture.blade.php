@@ -142,13 +142,13 @@
         },
     }"
     x-init="startCamera()"
-    class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-    <div class="p-6 text-gray-900 space-y-4" dir="rtl">
+    class="dga-card">
+    <div class="dga-card-body space-y-4" dir="rtl">
         <div class="flex items-center justify-between">
-            <h3 class="font-semibold text-gray-800">{{ $label }}</h3>
+            <h3 class="font-semibold text-ink">{{ $label }}</h3>
 
             @if ($existing)
-                <span class="inline-flex items-center rounded-md bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
+                <span class="inline-flex items-center rounded-md bg-success/10 px-3 py-1 text-sm font-medium text-success">
                     تم الالتقاط ✓
                 </span>
             @endif
@@ -161,28 +161,28 @@
 
         <div x-show="captured" x-cloak>
             <img :src="preview" alt="معاينة الصورة"
-                 class="w-full rounded-lg aspect-video object-cover bg-gray-100" />
+                 class="w-full rounded-lg aspect-video object-cover bg-surface" />
         </div>
 
-        <div x-show="cameraError" x-cloak class="rounded-md bg-red-50 border border-red-200 p-3 text-red-800 text-sm space-y-2">
+        <div x-show="cameraError" x-cloak class="rounded-md bg-danger/10 border border-danger/25 p-3 text-danger text-sm space-y-2">
             <span x-text="cameraError"></span>
             <button type="button" x-show="rawError" x-on:click="showErrorDetails = !showErrorDetails"
-                    class="text-xs underline text-red-700" x-cloak>
+                    class="text-xs underline text-danger" x-cloak>
                 <span x-text="showErrorDetails ? 'إخفاء تفاصيل الخطأ' : 'تفاصيل الخطأ'"></span>
             </button>
-            <div x-show="showErrorDetails && rawError" x-cloak class="text-xs font-mono break-all text-red-900" dir="ltr">
+            <div x-show="showErrorDetails && rawError" x-cloak class="text-xs font-mono break-all text-danger" dir="ltr">
                 <span x-text="rawError"></span>
             </div>
         </div>
 
         <div x-show="!captured && !uploadPreview" x-cloak class="space-y-2">
             <button type="button" x-on:click="$refs.fileInput.click()"
-                    x-class="{ 'ring-2 ring-blue-500 ring-offset-1': cameraError }"
-                    class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-semibold rounded-md border border-gray-300">
+                    x-class="{ 'ring-2 ring-danger ring-offset-1': cameraError }"
+                    class="inline-flex items-center px-4 py-2 bg-white hover:bg-surface text-ink text-sm font-semibold rounded-md border border-line">
                 رفع من الجهاز
             </button>
             <p x-show="cameraFileError" x-cloak x-text="cameraFileError"
-               class="mt-2 text-sm text-red-600"></p>
+               class="mt-2 text-sm text-danger"></p>
         </div>
 
         <input type="file" x-ref="fileInput" accept="image/jpeg,image/png" class="hidden"
@@ -190,15 +190,15 @@
 
         <div x-show="uploadPreview" x-cloak class="space-y-3">
             <img :src="uploadPreview" alt="معاينة الصورة المرفوعة"
-                 class="w-full rounded-lg aspect-video object-cover bg-gray-100" />
+                 class="w-full rounded-lg aspect-video object-cover bg-surface" />
             <div class="flex items-center gap-3">
                 <button type="button" x-on:click="uploadCancel()"
-                        class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-md">
+                        class="inline-flex items-center px-4 py-2 bg-secondary hover:bg-secondary-dark text-white text-sm font-semibold rounded-md">
                     إلغاء
                 </button>
                 <button type="button" x-on:click="uploadConfirm()"
                         wire:target="saveImage" wire:loading.attr="disabled"
-                        class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-md disabled:opacity-50">
+                        class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-semibold rounded-md disabled:opacity-50">
                     <span wire:loading.remove>اعتماد</span>
                     <span wire:loading wire:target="saveImage" x-cloak>جارٍ الحفظ...</span>
                 </button>
@@ -207,22 +207,22 @@
 
         <template x-if="!captured && !uploadPreview">
             <button type="button" x-on:click="capturePhoto()" :disabled="!stream"
-                    class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md disabled:opacity-50">
+                    class="inline-flex items-center px-4 py-2 bg-secondary hover:bg-secondary-dark text-white text-sm font-semibold rounded-md disabled:opacity-50">
                 التقاط الصورة
             </button>
             <p x-show="captureWarning" x-cloak x-text="captureWarning"
-               class="mt-2 text-sm text-amber-600"></p>
+               class="mt-2 text-sm text-navy"></p>
         </template>
 
         <template x-if="captured">
             <div class="flex items-center gap-3" x-cloak>
                 <button type="button" x-on:click="retake()"
-                        class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-md">
+                        class="inline-flex items-center px-4 py-2 bg-secondary hover:bg-secondary-dark text-white text-sm font-semibold rounded-md">
                     إعادة الالتقاط
                 </button>
                 <button type="button" x-on:click="confirmCapture()"
                         wire:target="saveImage" wire:loading.attr="disabled"
-                        class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-md disabled:opacity-50">
+                        class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-semibold rounded-md disabled:opacity-50">
                     <span wire:loading.remove>تأكيد وحفظ</span>
                     <span wire:loading wire:target="saveImage" x-cloak>جارٍ الحفظ...</span>
                 </button>
