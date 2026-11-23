@@ -388,6 +388,8 @@ class ReturnCaseTest extends TestCase
 
         $component->assertSet('isReturned', false);
         $component->assertSet('advancedTo', true);
+        $component->call('advance')
+            ->assertSet('advanceError', 'تم إرسال الملف إلى رفع البيانات ولا يمكن المتابعة من المحطة السابقة');
         $this->assertSame(CaseStatus::review, $case->fresh()->status);
     }
 

@@ -276,7 +276,7 @@
                         </x-primary-button>
                     </div>
                 </div>
-            @else
+            @elseif (! $advancedTo)
                 <div class="flex items-center justify-end">
                     <x-primary-button wire:click="advance" :disabled="$hasMissing">
                         {{ __('المحطة التالية') }}

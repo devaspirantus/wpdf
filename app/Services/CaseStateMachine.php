@@ -18,6 +18,14 @@ class CaseStateMachine
     {
         $case = $case->fresh();
 
+        if ($case->status === CaseStatus::review) {
+            throw new LogicException('تم إرسال الملف إلى رفع البيانات ولا يمكن المتابعة من المحطة السابقة');
+        }
+
+        if ($case->status === CaseStatus::returned) {
+            throw new LogicException('الملف مُرجع ويجب اكتمال التصحيح وإعادة الإرسال للمراجعة');
+        }
+
         $station = $case->status !== null ? Station::tryFrom($case->status->value) : null;
 
         if ($station === null) {

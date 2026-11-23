@@ -12,6 +12,7 @@ use App\Services\CaseStateMachine;
 use App\Services\StationCompletion;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use LogicException;
 
 class Reception extends Component
 {
@@ -104,6 +105,11 @@ class Reception extends Component
         } catch (IncompleteStationException $e) {
             $this->advanceError = $e->getMessage();
             $this->missingRequirements = $e->missing;
+
+            return;
+        } catch (LogicException $e) {
+            $this->advanceError = $e->getMessage();
+            $this->missingRequirements = [];
 
             return;
         }

@@ -11,6 +11,7 @@ use App\Services\CaseStateMachine;
 use App\Services\StationCompletion;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use LogicException;
 
 class TheoryStation extends Component
 {
@@ -70,6 +71,11 @@ class TheoryStation extends Component
             $this->missingRequirements = $e->missing;
 
             $this->refreshRequirements();
+
+            return;
+        } catch (LogicException $e) {
+            $this->advanceError = $e->getMessage();
+            $this->missingRequirements = [];
 
             return;
         }
