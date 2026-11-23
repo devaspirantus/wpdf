@@ -2,7 +2,7 @@
     $station = match (auth()->user()->role?->value) {
         'reception' => ['route' => route('reception'), 'label' => 'محطة الاستقبال', 'is' => 'reception'],
         'theory' => null,
-        'practical' => ['route' => route('case.search'), 'label' => 'بحث عن الحالات', 'is' => 'case.search'],
+        'practical' => null,
         'review' => ['route' => route('review'), 'label' => 'محطة المراجعة', 'is' => 'review'],
         default => null,
     };

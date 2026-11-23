@@ -29,7 +29,7 @@ class RoleNavigationTest extends TestCase
     {
         $this->assertSame('reception', Role::reception->landRoute());
         $this->assertSame('dashboard', Role::theory->landRoute());
-        $this->assertSame('case.search', Role::practical->landRoute());
+        $this->assertSame('dashboard', Role::practical->landRoute());
         $this->assertSame('review', Role::review->landRoute());
     }
 
@@ -49,12 +49,12 @@ class RoleNavigationTest extends TestCase
             ->assertRedirect(route('dashboard'));
     }
 
-    public function test_practical_user_is_redirected_to_case_search_on_login(): void
+    public function test_practical_user_is_redirected_to_the_dashboard_on_login(): void
     {
         $user = $this->createUser('practical');
 
         $this->loginAs($user)
-            ->assertRedirect(route('case.search'));
+            ->assertRedirect(route('dashboard'));
     }
 
     public function test_review_user_is_redirected_to_the_review_station_on_login(): void
@@ -98,14 +98,14 @@ class RoleNavigationTest extends TestCase
             ->assertDontSee('محطة المراجعة');
     }
 
-    public function test_practical_navigation_shows_the_case_search_link(): void
+    public function test_practical_navigation_shows_no_station_link_but_the_pending_table(): void
     {
         $user = $this->createUser('practical');
         $this->actingAs($user);
 
         $this->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('بحث عن الحالات')
+            ->assertDontSee('بحث عن الحالات')
             ->assertDontSee('محطة الاستقبال')
             ->assertDontSee('محطة المراجعة');
     }

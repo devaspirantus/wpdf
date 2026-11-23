@@ -68,6 +68,15 @@
         </script>
 
         <div class="max-w-xl mx-auto sm:px-6 lg:px-8 space-y-4">
+            <div class="flex items-center gap-4">
+                <a
+                    href="{{ route('dashboard') }}"
+                    class="text-sm text-gray-600 hover:text-gray-900"
+                >
+                    &larr; رجوع للوحة التحكم
+                </a>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <h3 class="font-semibold text-gray-800 mb-3">بيانات العامل</h3>
