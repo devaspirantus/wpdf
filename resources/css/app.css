@@ -1,78 +1,102 @@
 @import 'tailwindcss';
+@import '@fontsource/ibm-plex-sans-arabic/300.css';
+@import '@fontsource/ibm-plex-sans-arabic/400.css';
+@import '@fontsource/ibm-plex-sans-arabic/500.css';
+@import '@fontsource/ibm-plex-sans-arabic/600.css';
+@import '@fontsource/ibm-plex-sans-arabic/700.css';
+@import '@fontsource/material-symbols-outlined/400.css';
 
 @plugin '@tailwindcss/forms';
 
-@font-face {
-    font-family: 'Noto Sans Arabic';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('/fonts/noto-sans-arabic-400.woff2') format('woff2');
-}
-
-@font-face {
-    font-family: 'Noto Sans Arabic';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url('/fonts/noto-sans-arabic-500.woff2') format('woff2');
-}
-
-@font-face {
-    font-family: 'Noto Sans Arabic';
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url('/fonts/noto-sans-arabic-600.woff2') format('woff2');
-}
-
-@font-face {
-    font-family: 'Noto Sans Arabic';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url('/fonts/noto-sans-arabic-700.woff2') format('woff2');
-}
-
 @theme {
-    --font-sans: 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'IBM Plex Sans Arabic', ui-sans-serif, system-ui, sans-serif;
 
-    --color-primary: #26634B;
-    --color-primary-dark: #144D3F;
-    --color-primary-tint: #27AA8C;
-    --color-primary-pastel: #ACDDC7;
+    --color-primary: #004328;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #0d5c3a;
+    --color-on-primary-container: #8ad2a7;
+    --color-primary-fixed: #a9f3c5;
+    --color-on-primary-fixed: #002111;
 
-    --color-secondary: #005A96;
-    --color-secondary-dark: #0053BA;
-    --color-secondary-tint: #0054AE;
-    --color-secondary-pastel: #339EEC;
+    --color-secondary: #545f73;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #d5e0f8;
+    --color-on-secondary-container: #101b30;
+    --color-secondary-fixed: #d8e3fb;
+    --color-on-secondary-fixed: #101b30;
 
-    --color-navy: #160F3E;
+    --color-tertiary: #4a3700;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #664d00;
+    --color-on-tertiary-container: #ffe082;
+    --color-tertiary-fixed: #ffdf98;
+    --color-on-tertiary-fixed: #332500;
+
+    --color-surface: #f7f9fb;
+    --color-on-surface: #191c1e;
+    --color-surface-dim: #e0e2e4;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f2f4f6;
+    --color-surface-container: #ecedef;
+    --color-surface-container-high: #e6e8ea;
+    --color-surface-container-highest: #e0e3e5;
+
+    --color-on-surface-variant: #404942;
+    --color-outline: #707971;
+    --color-outline-variant: #bfc9c0;
+
+    --color-inverse-surface: #2d3134;
+    --color-inverse-on-surface: #eff1f3;
+    --color-inverse-primary: #8ed6aa;
+
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+
+    --color-success: var(--color-primary-container);
+    --color-warning: var(--color-tertiary-container);
+    --color-info: var(--color-on-secondary-container);
+
+    --color-primary-dark: #00331f;
+    --color-primary-tint: var(--color-inverse-primary);
+    --color-primary-pastel: var(--color-primary-fixed);
+
+    --color-secondary-dark: var(--color-on-secondary-container);
+    --color-secondary-tint: var(--color-secondary-fixed);
+    --color-secondary-pastel: var(--color-secondary-container);
+
+    --color-navy: #101b30;
     --color-navy-tint: #444061;
-    --color-navy-pastel: #CDCCD5;
+    --color-navy-pastel: #cdccd5;
 
-    --color-danger: #AF0818;
-    --color-success: #006604;
-    --color-warning: #FFC107;
-    --color-info: #339EEC;
+    --color-danger: var(--color-error);
+    --color-ink: var(--color-on-surface);
+    --color-muted: var(--color-on-surface-variant);
+    --color-line: var(--color-outline-variant);
 
-    --color-ink: #212529;
-    --color-muted: #495057;
-    --color-line: #dee2e6;
-    --color-surface: #f4f6f5;
-
+    --radius: 0.125rem;
+    --radius-lg: 0.25rem;
+    --radius-xl: 0.5rem;
+    --radius-full: 0.75rem;
     --radius-pill: 3rem;
+
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2.5rem;
 }
 
 @layer base {
     body {
-        @apply bg-surface text-ink font-sans;
+        @apply bg-surface text-on-surface font-sans;
     }
 
     input,
     select,
     textarea {
-        @apply rounded-lg border-navy;
+        @apply rounded-lg border-outline-variant;
     }
 
     input:focus,
@@ -84,11 +108,11 @@
 
 @layer components {
     .dga-card {
-        @apply mb-4 flex flex-col rounded-lg border border-primary bg-white shadow-sm;
+        @apply flex flex-col rounded-xl border border-outline-variant bg-surface-container-lowest shadow-sm;
     }
 
     .dga-card-header {
-        @apply border-b border-primary bg-black/[0.03] px-4 py-3 text-base font-semibold text-primary-dark;
+        @apply border-b border-outline-variant bg-surface-container-low px-4 py-3 text-base font-semibold text-on-surface;
     }
 
     .dga-card-body {
@@ -96,46 +120,50 @@
     }
 
     .dga-btn {
-        @apply inline-flex items-center justify-center gap-2 rounded-[--radius-pill] border-2 px-6 py-2.5 text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50;
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .dga-btn-primary {
-        @apply dga-btn border-primary bg-primary text-white hover:bg-primary-dark;
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold bg-primary text-on-primary hover:bg-primary-container transition focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .dga-btn-outline {
-        @apply dga-btn border-primary bg-white text-primary hover:bg-primary-pastel/40;
-    }
-
-    .dga-btn-secondary {
-        @apply dga-btn border-secondary bg-white text-secondary hover:bg-secondary-pastel/30;
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold border-2 border-primary bg-transparent text-primary hover:bg-primary-fixed/30 transition focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .dga-btn-danger {
-        @apply dga-btn border-danger bg-danger text-white hover:bg-danger/90;
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold bg-error text-on-error hover:bg-error/90 transition focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50;
     }
 
     .dga-badge {
-        @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-bold;
+        @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
     }
 
     .dga-table thead {
-        @apply bg-primary text-white;
+        @apply bg-surface-container-high;
     }
 
     .dga-table th {
-        @apply px-4 py-3 text-right text-sm font-semibold;
+        @apply px-4 py-3 text-right text-sm font-semibold text-on-surface-variant;
     }
 
     .dga-table td {
-        @apply border-b border-line px-4 py-3 text-sm;
+        @apply border-b border-outline-variant px-4 py-3 text-sm;
     }
 
-    .dga-nav-link {
-        @apply px-3 py-2 text-sm font-semibold text-muted transition hover:text-primary;
-    }
-
-    .dga-nav-link-active {
-        @apply border-b-2 border-primary text-primary;
+    .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
     }
 }
