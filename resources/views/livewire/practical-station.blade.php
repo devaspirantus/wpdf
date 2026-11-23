@@ -268,7 +268,7 @@
                 <div class="rounded-md bg-yellow-50 border border-yellow-200 p-4 text-yellow-800 text-sm">
                     <p class="font-semibold">تم إرجاع هذا الملف من محطة المراجعة</p>
                     @if ($returnNote)
-                        <p class="mt-2">ملاحظة المراجع: {{ $returnNote }}</p>
+                        <p class="mt-2">ملاحظة الإرجاع: {{ $returnNote }}</p>
                     @endif
                     <div class="mt-3 flex items-center justify-end">
                         <x-primary-button wire:click="resubmit">

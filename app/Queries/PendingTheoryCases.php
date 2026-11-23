@@ -23,7 +23,7 @@ class PendingTheoryCases
                 $q->where('status', CaseStatus::theory)
                     ->orWhere(function ($rq) {
                         $rq->where('status', CaseStatus::returned)
-                            ->whereHas('returns', fn ($rq2) => $rq2->where('returned_to_station', Station::theory));
+                            ->whereHas('latestReturn', fn ($rq2) => $rq2->where('returned_to_station', Station::theory));
                     });
             })
             ->when($search !== '', function ($q) use ($search) {
@@ -33,6 +33,7 @@ class PendingTheoryCases
                         ->orWhere('passport_number', 'like', '%'.$search.'%');
                 });
             })
+            ->with('latestReturn.returnedBy')
             ->withExists([
                 'documents as has_theory_photo' => function ($q) {
                     $q->where('station', Station::theory)

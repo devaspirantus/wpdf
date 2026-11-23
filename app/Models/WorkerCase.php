@@ -37,4 +37,9 @@ class WorkerCase extends Model
     {
         return $this->hasMany(CaseReturn::class, 'case_id');
     }
+
+    public function latestReturn(): HasOne
+    {
+        return $this->hasOne(CaseReturn::class, 'case_id')->latestOfMany('created_at');
+    }
 }

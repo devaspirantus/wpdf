@@ -23,7 +23,7 @@ class PendingPracticalCases
                 $q->where('status', CaseStatus::practical)
                     ->orWhere(function ($rq) {
                         $rq->where('status', CaseStatus::returned)
-                            ->whereHas('returns', fn ($rq2) => $rq2->where('returned_to_station', Station::practical));
+                            ->whereHas('latestReturn', fn ($rq2) => $rq2->where('returned_to_station', Station::practical));
                     });
             })
             ->when($search !== '', function ($q) use ($search) {
@@ -33,6 +33,7 @@ class PendingPracticalCases
                         ->orWhere('passport_number', 'like', '%'.$search.'%');
                 });
             })
+            ->with('latestReturn.returnedBy')
             ->withExists([
                 'documents as has_practical_photo' => function ($q) {
                     $q->where('station', Station::practical)

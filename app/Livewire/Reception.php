@@ -3,9 +3,11 @@
 namespace App\Livewire;
 
 use App\Actions\CreateWorkerCase;
+use App\Enums\CaseStatus;
 use App\Enums\Station;
 use App\Exceptions\IncompleteStationException;
 use App\Models\WorkerCase;
+use App\Queries\PendingReceptionCases;
 use App\Services\CaseStateMachine;
 use App\Services\StationCompletion;
 use Livewire\Attributes\On;
@@ -35,9 +37,35 @@ class Reception extends Component
 
     public bool $hasMissing = true;
 
+    public bool $isReturned = false;
+
+    public ?string $returnNote = null;
+
+    public string $search = '';
+
+    public function selectCase(int $id): void
+    {
+        $case = WorkerCase::query()->find($id);
+
+        if ($case === null) {
+            return;
+        }
+
+        $this->case = $case;
+        $this->resetStationState();
+        $this->refreshRequirements();
+    }
+
+    public function backToList(): void
+    {
+        $this->case = null;
+        $this->resetStationState();
+        $this->hasMissing = true;
+    }
+
     public function create(CreateWorkerCase $createWorkerCase): void
     {
-        $this->reset(['case', 'advancedTo', 'advanceError', 'missingRequirements', 'requirements']);
+        $this->reset(['case', 'advancedTo', 'advanceError', 'missingRequirements', 'requirements', 'isReturned', 'returnNote']);
 
         $this->validate(
             rules: [
@@ -84,6 +112,20 @@ class Reception extends Component
         $this->advancedTo = true;
     }
 
+    public function resubmit(CaseStateMachine $stateMachine): void
+    {
+        if ($this->case === null) {
+            return;
+        }
+
+        $this->reset(['advanceError', 'missingRequirements', 'advancedTo']);
+
+        $this->case = $stateMachine->resubmitToReview($this->case);
+        $this->isReturned = false;
+        $this->returnNote = null;
+        $this->advancedTo = true;
+    }
+
     #[On('case-document-stored')]
     public function documentStored(StationCompletion $stationCompletion, int $caseId): void
     {
@@ -96,17 +138,50 @@ class Reception extends Component
 
     public function render()
     {
-        return view('livewire.reception');
+        return view('livewire.reception', [
+            'returnedCases' => PendingReceptionCases::collection($this->search),
+        ]);
     }
 
     private function refreshRequirements(?StationCompletion $stationCompletion = null): void
     {
         if ($this->case === null) {
+            $this->requirements = [];
+            $this->hasMissing = true;
+            $this->isReturned = false;
+            $this->returnNote = null;
+
             return;
         }
+
+        $this->case = $this->case->fresh();
+
+        $this->syncReturnedState();
 
         $stationCompletion = $stationCompletion ?? app(StationCompletion::class);
         $this->requirements = $stationCompletion->requirements($this->case, Station::reception);
         $this->hasMissing = $stationCompletion->missing($this->case, Station::reception) !== [];
+    }
+
+    private function resetStationState(): void
+    {
+        $this->advanceError = null;
+        $this->advancedTo = false;
+        $this->missingRequirements = [];
+        $this->requirements = [];
+        $this->hasMissing = true;
+        $this->isReturned = false;
+        $this->returnNote = null;
+    }
+
+    private function syncReturnedState(): void
+    {
+        $lastReturn = $this->case->returns()->latest('created_at')->first();
+
+        $this->isReturned = $lastReturn !== null
+            && $this->case->status === CaseStatus::returned
+            && $lastReturn->returned_to_station === Station::reception;
+
+        $this->returnNote = $this->isReturned ? $lastReturn->note : null;
     }
 }

@@ -30,14 +30,22 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         @foreach ($pendingCases as $item)
-                            <tr class="hover:bg-gray-50">
+                            <tr class="hover:bg-gray-50 {{ $item->latestReturn ? 'bg-amber-50' : '' }}">
                                 <td class="py-3 pr-0 pl-3 whitespace-nowrap">{{ $item->ticket_number }}</td>
                                 <td class="py-3 pl-3">
-                                    <span class="font-medium text-gray-900">{{ $item->full_name }}</span>
-                                    @if ($item->status === \App\Enums\CaseStatus::returned)
-                                        <span class="mr-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                            مُرجع
-                                        </span>
+                                    <div>
+                                        <span class="font-medium text-gray-900">{{ $item->full_name }}</span>
+                                        @if ($item->latestReturn)
+                                            <span class="mr-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                                مُرجع من رفع البيانات
+                                            </span>
+                                        @endif
+                                    </div>
+                                    @if ($item->latestReturn?->note)
+                                        <p class="mt-1 text-xs text-gray-500">ملاحظة الإرجاع: {{ $item->latestReturn->note }}</p>
+                                    @endif
+                                    @if ($item->latestReturn?->returnedBy)
+                                        <p class="mt-0.5 text-xs text-gray-400">بواسطة: {{ $item->latestReturn->returnedBy->name }}</p>
                                     @endif
                                 </td>
                                 <td class="py-3 pl-3 whitespace-nowrap">{{ $item->passport_number }}</td>
