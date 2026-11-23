@@ -29,6 +29,13 @@ class PdfGenerationTest extends TestCase
     /** @var array<int, string> */
     private array $tempFixtures = [];
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Storage::disk('local')->deleteDirectory('cases');
+    }
+
     protected function tearDown(): void
     {
         foreach ($this->tempFixtures as $tmp) {
@@ -296,7 +303,12 @@ class PdfGenerationTest extends TestCase
             ->call('selectCase', $case->id)
             ->call('generatePdf')
             ->assertSee('تحميل PDF', false)
-            ->assertSee('طباعة PDF', false);
+            ->assertSee('طباعة PDF', false)
+            ->call('backToList')
+            ->assertSee('الحالات المكتملة وملفات PDF')
+            ->assertSee($case->full_name)
+            ->assertSee($case->ticket_number);
+
     }
 
     public function test_review_station_detects_existing_pdf_without_generation(): void

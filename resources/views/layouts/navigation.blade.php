@@ -14,9 +14,20 @@
         default => 'موظف',
     };
 @endphp
-<aside class="fixed right-0 top-0 bottom-0 z-40 flex w-72 flex-col border-l border-outline-variant bg-surface-container-lowest">
+<aside
+    x-bind:class="sidebarOpen ? 'translate-x-0' : 'translate-x-full'"
+    class="fixed bottom-0 right-0 top-0 z-40 flex w-[18rem] max-w-[86vw] flex-col border-l border-outline-variant bg-surface-container-lowest shadow-xl transition-transform duration-200 lg:w-72 lg:translate-x-0 lg:shadow-none"
+>
     <!-- Brand -->
     <div class="flex h-16 items-center gap-3 border-b border-outline-variant px-4">
+        <button
+            type="button"
+            class="flex h-10 w-10 items-center justify-center rounded-full text-on-surface hover:bg-surface-container-high lg:hidden"
+            @click="sidebarOpen = false"
+            aria-label="إغلاق القائمة"
+        >
+            <span class="material-symbols-outlined">close</span>
+        </button>
         <x-application-logo class="h-9 w-9 fill-current text-primary" />
         <div class="min-w-0">
             <div class="truncate text-sm font-bold text-on-surface">منصة اختبارات العمالة</div>

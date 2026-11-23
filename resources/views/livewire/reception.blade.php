@@ -5,28 +5,30 @@
         </h2>
     </x-slot>
 
-    <div class="py-12" dir="rtl">
-        <div class="max-w-xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-2 sm:py-4" dir="rtl">
+        <div class="mx-auto w-full max-w-none">
             @if ($case)
                 <div class="space-y-4 mt-6">
-                    <livewire:camera-capture
-                        :case-id="$case->id"
-                        :station="\App\Enums\Station::reception"
-                        type="worker_photo"
-                        label="صورة العامل"
-                    />
-                    <livewire:camera-capture
-                        :case-id="$case->id"
-                        :station="\App\Enums\Station::reception"
-                        type="passport"
-                        label="صورة جواز السفر"
-                    />
-                    <livewire:camera-capture
-                        :case-id="$case->id"
-                        :station="\App\Enums\Station::reception"
-                        type="ticket"
-                        label="صورة التذكرة"
-                    />
+                    <div class="grid gap-4 lg:grid-cols-3">
+                        <livewire:camera-capture
+                            :case-id="$case->id"
+                            :station="\App\Enums\Station::reception"
+                            type="worker_photo"
+                            label="صورة العامل"
+                        />
+                        <livewire:camera-capture
+                            :case-id="$case->id"
+                            :station="\App\Enums\Station::reception"
+                            type="passport"
+                            label="صورة جواز السفر"
+                        />
+                        <livewire:camera-capture
+                            :case-id="$case->id"
+                            :station="\App\Enums\Station::reception"
+                            type="ticket"
+                            label="صورة التذكرة"
+                        />
+                    </div>
 
                     <div class="dga-card p-4">
                         <h3 class="font-semibold text-ink mb-3">متطلبات استكمال المحطة</h3>
@@ -88,8 +90,13 @@
 
             @unless ($case)
                 <div class="dga-card">
-                    <div class="p-6 text-ink">
-                        <h3 class="font-semibold text-ink mb-4">ملفات مَرجعة إلى الاستقبال</h3>
+                    <div class="dga-card-header flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">assignment_return</span>
+                            <h3 class="font-bold text-ink">ملفات مَرجعة إلى الاستقبال</h3>
+                        </div>
+                    </div>
+                    <div class="dga-card-body">
 
                         <div class="mb-4">
                             <label for="reception-return-search" class="sr-only">بحث بالاسم ورقم التذكرة</label>
@@ -98,22 +105,22 @@
                                 type="text"
                                 wire:model.live.debounce.300ms="search"
                                 placeholder="ابحث بالاسم أو رقم التذكرة أو رقم الجواز..."
-                                class="w-full rounded-md border-line shadow-sm text-sm focus:border-primary focus:ring-primary"
+                                class="w-full py-3 text-sm"
                             />
                         </div>
 
                         @if ($returnedCases->isEmpty())
                             <p class="text-sm text-muted">لا توجد ملفات مَرجعة إلى الاستقبال حاليًا.</p>
                         @else
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full dga-table">
+                            <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                                <table class="w-full table-fixed dga-table">
                                     <thead>
                                         <tr class="text-right">
-                                            <th>رقم التذكرة</th>
-                                            <th>اسم العامل</th>
-                                            <th>رقم الجواز</th>
-                                            <th>وقت الإرجاع</th>
-                                            <th></th>
+                                            <th class="w-[16%] whitespace-nowrap">رقم التذكرة</th>
+                                            <th class="w-[30%]">اسم العامل</th>
+                                            <th class="w-[16%] whitespace-nowrap">رقم الجواز</th>
+                                            <th class="w-[22%] whitespace-nowrap">وقت الإرجاع</th>
+                                            <th class="w-[16%] text-left">الإجراء</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -142,8 +149,9 @@
                                                     <button
                                                         type="button"
                                                         wire:click="selectCase({{ $item->id }})"
-                                                        class="inline-flex items-center px-4 py-2 bg-primary border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-dark"
+                                                        class="dga-btn-primary min-h-10 px-4 py-2"
                                                     >
+                                                        <span class="material-symbols-outlined text-lg">folder_open</span>
                                                         فتح الملف
                                                     </button>
                                                 </td>
@@ -157,8 +165,13 @@
                 </div>
 
                 <div class="mt-4 dga-card">
-                    <div class="p-6 text-ink">
+                    <div class="dga-card-header flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">person_add</span>
+                        <h3 class="font-bold text-ink">إنشاء ملف عامل جديد</h3>
+                    </div>
+                    <div class="dga-card-body text-ink">
                         <form wire:submit="create" class="space-y-6">
+                            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             <div>
                                 <x-input-label for="full_name" value="اسم العامل" />
                                 <x-text-input id="full_name" wire:model="fullName" type="text" class="mt-1 block w-full" />
@@ -175,6 +188,7 @@
                                 <x-input-label for="ticket_number" value="رقم التذكرة" />
                                 <x-text-input id="ticket_number" wire:model="ticketNumber" type="text" class="mt-1 block w-full" />
                                 <x-input-error class="mt-2" :messages="$errors->get('ticketNumber')" />
+                            </div>
                             </div>
 
                             <div class="flex items-center justify-end">

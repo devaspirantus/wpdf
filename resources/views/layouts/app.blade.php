@@ -21,19 +21,35 @@
                 default => 'موظف',
             };
         @endphp
-        <div class="min-h-screen bg-surface">
+        <div x-data="{ sidebarOpen: false }" class="min-h-screen bg-surface">
             @include('layouts.navigation')
 
-            <div class="pr-72">
+            <div
+                x-show="sidebarOpen"
+                x-transition.opacity
+                x-cloak
+                class="fixed inset-0 z-30 bg-navy/35 backdrop-blur-sm lg:hidden"
+                @click="sidebarOpen = false"
+            ></div>
+
+            <div class="lg:pr-72">
                 <!-- Page Header -->
-                <header class="fixed left-0 right-72 top-0 z-30 flex h-16 items-center justify-between border-b border-outline-variant bg-surface-container-lowest px-6 shadow-sm">
+                <header class="fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between border-b border-outline-variant bg-surface-container-lowest/95 px-4 shadow-sm backdrop-blur lg:right-72 lg:px-6">
+                    <button
+                        type="button"
+                        class="flex h-10 w-10 items-center justify-center rounded-full text-on-surface hover:bg-surface-container-high lg:hidden"
+                        @click="sidebarOpen = true"
+                        aria-label="فتح القائمة"
+                    >
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
                     @if (!empty($header))
                         <h1 class="text-lg font-bold text-on-surface">{{ $header }}</h1>
                     @else
                         <span class="text-lg font-bold text-on-surface">{{ config('app.name', 'Laravel') }}</span>
                     @endif
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm text-on-surface-variant">{{ now()->locale('ar')->format('j F Y') }}</span>
+                    <div class="flex items-center gap-2 md:gap-4">
+                        <span class="hidden text-sm text-on-surface-variant sm:inline">{{ now()->locale('ar')->format('j F Y') }}</span>
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">
                                 <button class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-on-surface transition hover:bg-surface-container-high focus:outline-none">
@@ -69,7 +85,7 @@
                 </header>
 
                 <!-- Page Content -->
-                <main class="px-6 py-6 pt-22">
+                <main class="px-4 py-6 pt-22 sm:px-6 lg:px-8">
                     {{ $slot }}
                 </main>
 

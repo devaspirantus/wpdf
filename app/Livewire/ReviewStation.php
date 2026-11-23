@@ -124,6 +124,14 @@ class ReviewStation extends Component
             ->orderByDesc('id')
             ->get(['id', 'full_name', 'ticket_number', 'passport_number']);
 
+        $completedCases = $cases->filter(function (WorkerCase $case) {
+            $files = Storage::disk('local')->files('cases/'.$case->id.'/pdf');
+
+            return collect($files)->contains(fn (string $path) => str_ends_with($path, '.pdf'));
+        })->values();
+
+        $cases = $cases->reject(fn (WorkerCase $case) => $completedCases->contains('id', $case->id))->values();
+
         $case = null;
         $latestReturn = null;
         $caseId = $this->caseId;
@@ -135,7 +143,7 @@ class ReviewStation extends Component
                 }])
                 ->find($caseId);
 
-            if ($case === null || $case->status !== CaseStatus::review) {
+            if ($case === null || ! in_array($case->status, [CaseStatus::review, CaseStatus::completed], true)) {
                 $case = null;
                 $this->reset('caseId');
                 $this->resetReturnForm();
@@ -151,6 +159,7 @@ class ReviewStation extends Component
 
         return view('livewire.review-station', [
             'cases' => $cases,
+            'completedCases' => $completedCases,
             'case' => $case,
             'latestReturn' => $latestReturn,
             'sections' => SaveEvaluation::SECTIONS,

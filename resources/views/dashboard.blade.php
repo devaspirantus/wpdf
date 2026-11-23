@@ -14,37 +14,33 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="dga-card">
-                <div class="dga-card-body">
-                    <p class="mb-1 text-ink">
-                        {{ __('مرحباً بعودتك،') }}
-                        <span class="font-bold">{{ auth()->user()->name }}</span>
-                    </p>
-                    <p class="text-sm text-muted mb-4">
-                        {{ __('الدور:') }}
-                        <span class="font-bold">{{ auth()->user()->role?->label() ?? __('غير محدد') }}</span>
-                    </p>
+    <div class="mx-auto max-w-6xl space-y-6">
+        <section class="relative overflow-hidden rounded-2xl bg-navy px-5 py-6 text-white shadow-sm sm:px-8 sm:py-8">
+            <div class="absolute left-0 top-0 h-full w-1/2 bg-gradient-to-r from-transparent to-primary/25"></div>
+            <div class="relative">
+                <p class="text-sm text-white/70">مرحباً بعودتك</p>
+                <h3 class="mt-1 text-2xl font-bold sm:text-3xl">{{ auth()->user()->name }}</h3>
+                <div class="mt-4 flex flex-wrap items-center gap-3">
+                    <span class="dga-badge bg-white/10 text-white">
+                        <span class="material-symbols-outlined me-1 text-lg">badge</span>
+                        {{ auth()->user()->role?->label() ?? __('غير محدد') }}
+                    </span>
                     @if($station)
-                        <a href="{{ $station['route'] }}"
-                            class="dga-btn dga-btn-primary">
+                        <a href="{{ $station['route'] }}" class="dga-btn bg-white text-navy hover:bg-primary-pastel">
                             {{ __($station['label']) }}
-                            <svg class="me-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                            </svg>
+                            <span class="material-symbols-outlined text-lg">arrow_back</span>
                         </a>
                     @elseif (! in_array(auth()->user()->role?->value, ['theory', 'practical'], true))
                         <p class="text-sm font-semibold text-warning">{{ __('لم يتم تحديد محطة لمستخدمك بعد. تواصل مع الإدارة.') }}</p>
                     @endif
                 </div>
             </div>
+        </section>
 
-            @if (auth()->user()->role?->value === 'theory')
-                <livewire:theory-pending-cases />
-            @elseif (auth()->user()->role?->value === 'practical')
-                <livewire:practical-pending-cases />
-            @endif
-        </div>
+        @if (auth()->user()->role?->value === 'theory')
+            <livewire:theory-pending-cases />
+        @elseif (auth()->user()->role?->value === 'practical')
+            <livewire:practical-pending-cases />
+        @endif
     </div>
 </x-app-layout>

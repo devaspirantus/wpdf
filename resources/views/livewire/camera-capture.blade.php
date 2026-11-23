@@ -10,6 +10,32 @@
         cameraFileError: '',
         captureWarning: '',
 
+        compressImage(source, callback) {
+            const image = new Image();
+
+            image.onload = () => {
+                const maxDimension = 1600;
+                const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+                const canvas = document.createElement('canvas');
+
+                canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+                canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+
+                const context = canvas.getContext('2d');
+                context.fillStyle = '#ffffff';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                callback(canvas.toDataURL('image/jpeg', 0.72));
+            };
+
+            image.onerror = () => {
+                this.cameraFileError = 'تعذّر ضغط الصورة. يرجى اختيار صورة أخرى.';
+            };
+
+            image.src = source;
+        },
+
         onFileSelected(event) {
             this.uploadPreview = '';
             this.uploadFile = null;
@@ -32,7 +58,10 @@
 
             const reader = new FileReader();
             reader.onload = () => {
-                this.uploadPreview = reader.result;
+                this.compressImage(reader.result, (compressed) => {
+                    this.uploadPreview = compressed;
+                    this.uploadFile = compressed;
+                });
             };
             reader.readAsDataURL(file);
         },
@@ -119,9 +148,11 @@
                 return;
             }
 
-            this.preview = canvas.toDataURL('image/png');
-            this.captured = true;
-            this.stopCamera();
+            this.compressImage(canvas.toDataURL('image/png'), (compressed) => {
+                this.preview = compressed;
+                this.captured = true;
+                this.stopCamera();
+            });
         },
 
         retake() {
@@ -156,12 +187,12 @@
 
         <template x-if="!captured && !cameraError">
             <video x-ref="video" autoplay playsinline muted
-                   class="w-full rounded-lg bg-black aspect-video"></video>
+                   class="mx-auto h-52 w-full max-w-md rounded-lg bg-black object-cover"></video>
         </template>
 
         <div x-show="captured" x-cloak>
             <img :src="preview" alt="معاينة الصورة"
-                 class="w-full rounded-lg aspect-video object-cover bg-surface" />
+                 class="mx-auto h-52 w-full max-w-md rounded-lg object-contain bg-surface" />
         </div>
 
         <div x-show="cameraError" x-cloak class="rounded-md bg-danger/10 border border-danger/25 p-3 text-danger text-sm space-y-2">
@@ -190,7 +221,7 @@
 
         <div x-show="uploadPreview" x-cloak class="space-y-3">
             <img :src="uploadPreview" alt="معاينة الصورة المرفوعة"
-                 class="w-full rounded-lg aspect-video object-cover bg-surface" />
+                 class="mx-auto h-52 w-full max-w-md rounded-lg object-contain bg-surface" />
             <div class="flex items-center gap-3">
                 <button type="button" x-on:click="uploadCancel()"
                         class="inline-flex items-center px-4 py-2 bg-secondary hover:bg-secondary-dark text-white text-sm font-semibold rounded-md">

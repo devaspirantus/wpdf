@@ -51,6 +51,7 @@ class GenerateCasePdf
                 'label' => self::DOCUMENT_LABELS[$required['type']],
                 'src' => $this->imageDataUri($document->path),
                 'time' => $document->created_at->format('d/m/Y H:i'),
+                'station' => $this->stationName(Station::from($required['station'])),
             ];
         }
 
@@ -86,8 +87,8 @@ class GenerateCasePdf
         Browsershot::html($html)
             ->setChromePath('/usr/bin/google-chrome-stable')
             ->format('A4')
-            ->margins(15, 12, 20, 12, 'mm')
-            ->footerHtml('<div style="font-size:9px; font-family:sans-serif; color:#666; width:100%; text-align:center;">صفحة <span class="pageNumber"></span> من <span class="totalPages"></span></div>')
+            ->margins(0, 0, 12, 0, 'mm')
+            ->footerHtml('<div style="font-size:9px; font-family:sans-serif; color:#404942; border-top:1px solid #bfc9c0; width:88%; margin:0 auto; padding-top:3px; text-align:center;">منصة اختبارات العمالة — صفحة <span class="pageNumber"></span> من <span class="totalPages"></span></div>')
             ->showBrowserHeaderAndFooter()
             ->addChromiumArguments(['no-sandbox', 'disable-dev-shm-usage'])
             ->waitUntilNetworkIdle(false)
@@ -147,5 +148,15 @@ class GenerateCasePdf
             'medium' => 'متوسط',
             'hard' => 'صعب',
         ][$difficulty->value];
+    }
+
+    protected function stationName(Station $station): string
+    {
+        return match ($station) {
+            Station::reception => 'محطة الاستقبال',
+            Station::theory => 'المختبر النظري',
+            Station::practical => 'المختبر العملي',
+            Station::review => 'محطة رفع البيانات',
+        };
     }
 }

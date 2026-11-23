@@ -1,4 +1,9 @@
 <x-guest-layout>
+    <div class="mb-6 text-center">
+        <h1 class="text-xl font-bold text-navy">تسجيل الدخول</h1>
+        <p class="mt-1 text-sm leading-6 text-muted">أدخل بيانات حسابك للمتابعة إلى المحطة المخصصة لك</p>
+    </div>
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 

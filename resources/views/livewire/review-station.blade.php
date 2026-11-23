@@ -21,7 +21,7 @@
 </x-slot>
 
 <div class="py-12" dir="rtl">
-    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-4">
+    <div class="mx-auto max-w-6xl space-y-4">
         @if ($returnSuccess !== null)
             <div class="rounded-md bg-success/10 border border-success/25 p-4 text-success text-sm">
                 <p class="font-semibold">{{ $returnSuccess }}</p>
@@ -35,39 +35,112 @@
 
         @if ($case === null)
             <div class="dga-card">
+                <div class="dga-card-header flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">fact_check</span>
+                    <h3 class="font-bold text-ink">الحالات قيد المراجعة</h3>
+                </div>
                 <div class="dga-card-body">
-                    <h3 class="font-semibold text-ink mb-4">الحالات قيد المراجعة</h3>
 
                     @if ($cases->isEmpty())
                         <p class="text-sm text-muted">لا توجد حالات بانتظار المراجعة.</p>
                     @else
-                        <ul class="divide-y divide-line">
-                            @foreach ($cases as $item)
-                                <li class="py-3 flex items-center justify-between gap-4">
-                                    <div class="text-sm">
-                                        <div class="flex items-center gap-2">
-                                            <p class="font-medium text-ink">{{ $item->full_name }}</p>
+                        <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                            <table class="w-full table-fixed dga-table">
+                                <thead>
+                                    <tr>
+                                        <th class="w-[16%]">رقم التذكرة</th>
+                                        <th class="w-[28%]">اسم العامل</th>
+                                        <th class="w-[20%]">رقم الجواز</th>
+                                        <th class="w-[20%]">الحالة</th>
+                                        <th class="w-[16%] text-left">الإجراء</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($cases as $item)
+                                        <tr class="hover:bg-primary-pastel/15">
+                                            <td class="whitespace-nowrap font-medium text-ink">{{ $item->ticket_number }}</td>
+                                            <td>
+                                                <span class="font-medium text-ink">{{ $item->full_name }}</span>
+                                            </td>
+                                            <td class="whitespace-nowrap">{{ $item->passport_number }}</td>
+                                            <td>
                                             @if (($item->returns_count ?? 0) > 0)
                                                 <span class="inline-flex items-center rounded-full bg-warning/20 border border-warning/40 px-2 py-0.5 text-xs font-medium text-navy">
                                                     عاد بعد التصحيح
                                                 </span>
+                                            @else
+                                                <span class="dga-badge border border-info/30 bg-info/10 text-navy">قيد المراجعة</span>
                                             @endif
-                                        </div>
-                                        <p class="text-muted mt-1">
-                                            التذكرة: {{ $item->ticket_number }}
-                                            &middot; الجواز: {{ $item->passport_number }}
-                                        </p>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        wire:click="selectCase({{ $item->id }})"
-                                        class="shrink-0 inline-flex items-center px-4 py-2 bg-navy border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-navy/90"
-                                    >
-                                        عرض
-                                    </button>
-                                </li>
-                            @endforeach
-                        </ul>
+                                            </td>
+                                            <td class="text-left">
+                                                <button
+                                                    type="button"
+                                                    wire:click="selectCase({{ $item->id }})"
+                                                    class="dga-btn-primary min-h-10 px-4 py-2"
+                                                >
+                                                    <span class="material-symbols-outlined text-lg">visibility</span>
+                                                    عرض
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="dga-card">
+                <div class="dga-card-header flex items-center gap-2">
+                    <span class="material-symbols-outlined text-success">task_alt</span>
+                    <h3 class="font-bold text-ink">الحالات المكتملة وملفات PDF</h3>
+                </div>
+                <div class="dga-card-body">
+                    @if ($completedCases->isEmpty())
+                        <p class="text-sm text-muted">لا توجد حالات مكتملة بعد.</p>
+                    @else
+                        <div class="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+                            <table class="w-full table-fixed dga-table">
+                                <thead>
+                                    <tr>
+                                        <th class="w-[16%]">رقم التذكرة</th>
+                                        <th class="w-[28%]">اسم العامل</th>
+                                        <th class="w-[16%]">رقم الجواز</th>
+                                        <th class="w-[20%]">تاريخ الإكمال</th>
+                                        <th class="w-[20%] text-left">ملف PDF</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($completedCases as $item)
+                                        <tr class="hover:bg-primary-pastel/15">
+                                            <td class="whitespace-nowrap font-medium text-ink">{{ $item->ticket_number }}</td>
+                                            <td>{{ $item->full_name }}</td>
+                                            <td class="whitespace-nowrap">{{ $item->passport_number }}</td>
+                                            <td class="whitespace-nowrap text-muted">{{ $item->updated_at?->format('d/m/Y H:i') }}</td>
+                                            <td>
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <a
+                                                        href="{{ route('pdf.download', $item) }}"
+                                                        class="dga-btn-outline px-3 py-2"
+                                                    >
+                                                        تحميل
+                                                    </a>
+                                                    <a
+                                                        href="{{ route('pdf.print', $item) }}"
+                                                        target="_blank"
+                                                        rel="noopener"
+                                                        class="dga-btn-primary px-3 py-2"
+                                                    >
+                                                        طباعة
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     @endif
                 </div>
             </div>
