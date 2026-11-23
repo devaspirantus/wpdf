@@ -29,13 +29,6 @@ class PdfGenerationTest extends TestCase
     /** @var array<int, string> */
     private array $tempFixtures = [];
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Storage::disk('local')->deleteDirectory('cases');
-    }
-
     protected function tearDown(): void
     {
         foreach ($this->tempFixtures as $tmp) {

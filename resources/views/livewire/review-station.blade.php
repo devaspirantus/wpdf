@@ -195,7 +195,7 @@
                         @foreach (['worker_photo', 'passport'] as $type)
                             <div>
                                 <p class="text-xs text-muted mb-1">{{ $labels[$type] }}</p>
-                                @if ($documents->has($type))
+                                @if ($documents->has($type) && in_array($type, $availableDocumentTypes, true))
                                     <img
                                         src="{{ route('documents.show', $documents->get($type)) }}"
                                         alt="{{ $labels[$type] }}"
@@ -218,14 +218,16 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         @foreach ($documents as $document)
-                            <div>
-                                <p class="text-xs text-muted mb-1">{{ $labels[$document->type] }}</p>
-                                <img
-                                    src="{{ route('documents.show', $document) }}"
-                                    alt="{{ $labels[$document->type] }}"
-                                    class="w-full h-40 object-cover border border-line rounded-md bg-white"
-                                >
-                            </div>
+                            @if (in_array($document->type, $availableDocumentTypes, true))
+                                <div>
+                                    <p class="text-xs text-muted mb-1">{{ $labels[$document->type] }}</p>
+                                    <img
+                                        src="{{ route('documents.show', $document) }}"
+                                        alt="{{ $labels[$document->type] }}"
+                                        class="w-full h-40 object-cover border border-line rounded-md bg-white"
+                                    >
+                                </div>
+                            @endif
                         @endforeach
                     </div>
                 </div>

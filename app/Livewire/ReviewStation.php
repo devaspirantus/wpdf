@@ -135,6 +135,7 @@ class ReviewStation extends Component
         $case = null;
         $latestReturn = null;
         $caseId = $this->caseId;
+        $availableDocumentTypes = [];
 
         if ($caseId !== null) {
             $case = WorkerCase::query()
@@ -151,6 +152,10 @@ class ReviewStation extends Component
             }
 
             $latestReturn = $case?->returns->first();
+            $availableDocumentTypes = $case?->documents
+                ->filter(fn ($document) => Storage::disk('local')->exists($document->path))
+                ->pluck('type')
+                ->all() ?? [];
 
             if ($this->pdfPath === null && $case !== null) {
                 $this->detectExistingPdf($case);
@@ -162,6 +167,7 @@ class ReviewStation extends Component
             'completedCases' => $completedCases,
             'case' => $case,
             'latestReturn' => $latestReturn,
+            'availableDocumentTypes' => $availableDocumentTypes,
             'sections' => SaveEvaluation::SECTIONS,
             'scale' => SaveEvaluation::SCALE,
         ]);

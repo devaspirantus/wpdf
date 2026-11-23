@@ -114,6 +114,14 @@ class GenerateCasePdf
         foreach (self::REQUIRED_DOCUMENTS as $required) {
             if (! $documents->contains('type', $required['type'])) {
                 $missing[] = self::DOCUMENT_LABELS[$required['type']];
+
+                continue;
+            }
+
+            $document = $documents->firstWhere('type', $required['type']);
+
+            if (! Storage::disk('local')->exists($document->path)) {
+                $missing[] = self::DOCUMENT_LABELS[$required['type']];
             }
         }
 
