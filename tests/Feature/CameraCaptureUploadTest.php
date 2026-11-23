@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\WorkerCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -113,10 +114,9 @@ class CameraCaptureUploadTest extends TestCase
         $this->assertSame('worker_photo', $cameraDoc->type);
         $this->assertSame($this->user->id, $cameraDoc->created_by);
 
-        $storedPath = storage_path('app/private/'.$cameraDoc->path);
-        $this->assertFileExists($storedPath);
+        Storage::disk('local')->assertExists($cameraDoc->path);
 
-        $name = basename($storedPath);
+        $name = basename($cameraDoc->path);
         preg_match('#^worker_photo\.(jpg|png)$#', $name, $m);
         $this->assertSame($name, $m[0]);
     }
