@@ -80,12 +80,6 @@
     --radius-xl: 0.5rem;
     --radius-full: 0.75rem;
     --radius-pill: 3rem;
-
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2.5rem;
 }
 
 @layer base {
