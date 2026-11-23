@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\CaseStatus;
 use App\Enums\Station;
 use App\Livewire\Reception;
+use App\Livewire\ReviewStation;
 use App\Models\CaseReturn;
 use App\Models\User;
 use App\Models\WorkerCase;
@@ -157,7 +158,7 @@ class ReturnedCasesUxTest extends TestCase
             ->assertSet('isReturned', true)
             ->assertSet('returnNote', 'مستند الجواز غير واضح')
             ->assertSee('تم إرجاع هذا الملف من محطة المراجعة', escape: false)
-            ->assertSee('إعادة الإرسال للمراجعة', escape: false);
+            ->assertSee('إرجاع إلى رفع البيانات', escape: false);
     }
 
     public function test_resubmit_sends_case_back_to_review(): void
@@ -182,6 +183,41 @@ class ReturnedCasesUxTest extends TestCase
         Livewire::test(Reception::class)
             ->call('selectCase', $case->id)
             ->assertSet('isReturned', false)
-            ->assertDontSee('إعادة الإرسال للمراجعة', escape: false);
+            ->assertDontSee('إرجاع إلى رفع البيانات', escape: false);
+    }
+
+    public function test_review_list_shows_resubmitted_badge_for_case_with_returns(): void
+    {
+        $this->asRole('reception');
+        $case = $this->returnedCase(Station::theory, ['status' => CaseStatus::review]);
+
+        Livewire::test(ReviewStation::class)
+            ->assertSee('T-7001', escape: false)
+            ->assertSee('عاد بعد التصحيح', escape: false);
+    }
+
+    public function test_review_detail_shows_resubmitted_badge_for_case_with_returns(): void
+    {
+        $this->asRole('reception');
+        $case = $this->returnedCase(Station::practical, ['status' => CaseStatus::review]);
+
+        Livewire::test(ReviewStation::class)
+            ->call('selectCase', $case->id)
+            ->assertSee('عاد بعد التصحيح', escape: false);
+    }
+
+    public function test_review_detail_shows_no_badge_for_case_without_returns(): void
+    {
+        $this->asRole('reception');
+        $case = WorkerCase::create([
+            'full_name' => 'فهد سالم',
+            'passport_number' => 'P5550009',
+            'ticket_number' => 'T-7010',
+            'status' => CaseStatus::review,
+        ]);
+
+        Livewire::test(ReviewStation::class)
+            ->call('selectCase', $case->id)
+            ->assertDontSee('عاد بعد التصحيح', escape: false);
     }
 }

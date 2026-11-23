@@ -120,6 +120,7 @@ class ReviewStation extends Component
     {
         $cases = WorkerCase::query()
             ->where('status', CaseStatus::review->value)
+            ->withCount('returns')
             ->orderByDesc('id')
             ->get(['id', 'full_name', 'ticket_number', 'passport_number']);
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CaseStatus;
+use App\Enums\Station;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -41,5 +42,25 @@ class WorkerCase extends Model
     public function latestReturn(): HasOne
     {
         return $this->hasOne(CaseReturn::class, 'case_id')->latestOfMany('created_at');
+    }
+
+    public function isReturned(): bool
+    {
+        return $this->status === CaseStatus::returned;
+    }
+
+    public function returnedToStation(): ?Station
+    {
+        return $this->isReturned() ? $this->latestReturn?->returned_to_station : null;
+    }
+
+    public function activeReturn(): ?CaseReturn
+    {
+        return $this->isReturned() ? $this->latestReturn : null;
+    }
+
+    public function hasAnyReturn(): bool
+    {
+        return $this->returns()->exists();
     }
 }

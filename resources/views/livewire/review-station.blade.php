@@ -45,7 +45,14 @@
                             @foreach ($cases as $item)
                                 <li class="py-3 flex items-center justify-between gap-4">
                                     <div class="text-sm">
-                                        <p class="font-medium text-gray-900">{{ $item->full_name }}</p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-medium text-gray-900">{{ $item->full_name }}</p>
+                                            @if (($item->returns_count ?? 0) > 0)
+                                                <span class="inline-flex items-center rounded-full bg-yellow-100 border border-yellow-300 px-2 py-0.5 text-xs font-medium text-yellow-800">
+                                                    عاد بعد التصحيح
+                                                </span>
+                                            @endif
+                                        </div>
                                         <p class="text-gray-500 mt-1">
                                             التذكرة: {{ $item->ticket_number }}
                                             &middot; الجواز: {{ $item->passport_number }}
@@ -93,7 +100,14 @@
                         </div>
                         <div>
                             <dt class="text-gray-500">الحالة الحالية</dt>
-                            <dd class="mt-1 font-medium text-gray-900">{{ $case->status->arabicName() }}</dd>
+                            <dd class="mt-1 flex items-center gap-2">
+                                <span class="font-medium text-gray-900">{{ $case->status->arabicName() }}</span>
+                                @if ($case->returns->isNotEmpty())
+                                    <span class="inline-flex items-center rounded-full bg-yellow-100 border border-yellow-300 px-2 py-0.5 text-xs font-medium text-yellow-800">
+                                        عاد بعد التصحيح
+                                    </span>
+                                @endif
+                            </dd>
                         </div>
                     </dl>
                 </div>

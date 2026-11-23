@@ -67,7 +67,7 @@
                             @endif
                             <div class="mt-3 flex items-center justify-end">
                                 <x-primary-button wire:click="resubmit">
-                                    {{ __('إعادة الإرسال للمراجعة') }}
+                                    {{ __('إرجاع إلى رفع البيانات') }}
                                 </x-primary-button>
                             </div>
                         </div>

@@ -277,7 +277,7 @@ class ReturnCaseTest extends TestCase
 
         $component->assertSet('isReturned', true);
         $component->assertSee('ملاحظة الإرجاع النظرية');
-        $component->assertSee('إرسال للمراجعة');
+        $component->assertSee('إرجاع إلى رفع البيانات');
     }
 
     public function test_theory_station_resubmit_sets_status_to_review(): void
@@ -310,7 +310,7 @@ class ReturnCaseTest extends TestCase
 
         $component->assertSet('isReturned', true);
         $component->assertSee('ملاحظة الإرجاع العملي');
-        $component->assertSee('إرسال للمراجعة');
+        $component->assertSee('إرجاع إلى رفع البيانات');
     }
 
     public function test_practical_station_resubmit_sets_status_to_review(): void
