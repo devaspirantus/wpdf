@@ -87,6 +87,7 @@ class GenerateCasePdf
         Browsershot::html($html)
             ->setChromePath('/usr/bin/google-chrome-stable')
             ->format('A4')
+            ->showBackground()
             ->margins(0, 0, 12, 0, 'mm')
             ->footerHtml('<div style="font-size:9px; font-family:sans-serif; color:#404942; border-top:1px solid #bfc9c0; width:88%; margin:0 auto; padding-top:3px; text-align:center;">منصة اختبارات العمالة — صفحة <span class="pageNumber"></span> من <span class="totalPages"></span></div>')
             ->showBrowserHeaderAndFooter()

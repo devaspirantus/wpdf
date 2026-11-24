@@ -74,7 +74,7 @@ class PdfGenerationTest extends TestCase
             $scores,
         );
 
-        $signature = 'data:image/png;base64,'.base64_encode('fake-signature-bytes');
+        $signature = 'data:image/png;base64,'.base64_encode(UploadedFile::fake()->image('signature.png')->get());
         app(SignEvaluation::class)->handle($case, $signature, $signature);
 
         return $case->fresh()->load(['documents', 'evaluation']);
@@ -188,11 +188,25 @@ class PdfGenerationTest extends TestCase
         $this->assertFileExists($absolute);
         $this->assertSame('%PDF-', substr(file_get_contents($absolute, false, null, 0), 0, 5));
         $this->assertLessThan(10 * 1024 * 1024, filesize($absolute));
+        $this->assertSame(2, preg_match_all('/\/Type\s*\/Page\b/', file_get_contents($absolute)));
 
         $expectedName = $case->ticket_number.'_'.now()->format('Y-m-d').'_v1.pdf';
         $this->assertStringEndsWith($expectedName, $relative);
 
         $this->assertPdfEmbedsBrightImage($absolute);
+    }
+
+    public function test_long_worker_details_and_task_fit_in_two_pages(): void
+    {
+        $this->actingAsUser();
+        $case = $this->createCompleteCase();
+        $case->update(['full_name' => str_repeat('محمد ', 50)]);
+        $case->evaluation()->update(['task' => str_repeat('صيانة ', 42)]);
+
+        $relative = app(GenerateCasePdf::class)->handle($case->fresh()->load(['documents', 'evaluation']));
+
+        $content = Storage::disk('local')->get($relative);
+        $this->assertSame(2, preg_match_all('/\/Type\s*\/Page\b/', $content));
     }
 
     public function test_generate_pdf_button_shows_error_when_incomplete(): void

@@ -88,6 +88,7 @@
     background: #fff;
     color: #101b30;
     font-size: 12.5px;
+    overflow-wrap: anywhere;
   }
   .timeline {
     width: 100%;
@@ -115,22 +116,29 @@
     color: #191c1e;
     font-size: 10px;
   }
-  .document-head {
-    border-right: 3mm solid #004328;
-    background: #101b30;
-    color: #fff;
-    padding: 4mm 5mm;
-    margin-bottom: 4mm;
+  .documents {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3mm;
+    margin-top: 3mm;
   }
-  .document-head h1 { margin: 0; font-size: 15px; }
-  .document-head p { margin: 1.5mm 0 0; color: #dce3ee; font-size: 9.5px; }
+  .document {
+    min-width: 0;
+    border: 0.35mm solid #c9cec9;
+    border-radius: 2mm;
+    overflow: hidden;
+  }
+  .document-head {
+    min-height: 15mm;
+    padding: 1.5mm 2mm;
+    background: #f2f4f6;
+  }
+  .document-head h3 { margin: 0; color: #101b30; font-size: 9px; }
+  .document-head p { margin: 0.5mm 0 0; color: #404942; font-size: 8px; }
   .image-frame {
     width: 100%;
-    height: 235mm;
-    border: 0.45mm solid #c9cec9;
-    border-radius: 3mm;
+    height: 45mm;
     background: #f2f4f6;
-    overflow: hidden;
   }
   .doc-img {
     display: block;
@@ -140,15 +148,18 @@
   }
   .evaluation-card {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     border: 0.35mm solid #c9cec9;
   }
   .evaluation-card td {
+    width: 32%;
     height: 10mm;
     padding: 2mm 3mm;
+    overflow-wrap: anywhere;
   }
   .evaluation-card td.label {
-    width: 25%;
+    width: 18%;
     background: #f2f4f6;
     color: #404942;
     font-weight: 700;
@@ -161,7 +172,7 @@
     border: 0.35mm solid #c9cec9;
   }
   table.criteria th {
-    height: 9mm;
+    height: 7mm;
     background: #004328;
     color: #fff;
     padding: 1.5mm 2.5mm;
@@ -170,14 +181,14 @@
   table.criteria th:first-child { width: 8mm; text-align: center; }
   table.criteria th:last-child { width: 22mm; text-align: center; }
   table.criteria td {
-    height: 8.6mm;
-    padding: 1.2mm 2.5mm;
+    height: 7mm;
+    padding: 0.8mm 2.5mm;
     border-top: 0.25mm solid #dfe4df;
     vertical-align: middle;
     font-size: 8.8px;
   }
   table.criteria tr.section td {
-    height: 7mm;
+    height: 6mm;
     background: #e7ece8;
     color: #101b30;
     font-weight: 700;
@@ -203,7 +214,6 @@
     padding: 2mm 3mm;
   }
   .signatures h4 { margin: 0; color: #101b30; font-size: 10.5px; }
-  .signatures p { height: 5mm; margin: 1mm 0 0; color: #404942; font-size: 8.5px; }
   .signatures img {
     display: block;
     width: 88%;
@@ -258,31 +268,24 @@
         <td><span class="step">المراجعة والتوقيع</span><span class="time">{{ $reviewTime }}</span></td>
       </tr>
     </table>
-  </div>
-
-  @foreach ($images as $index => $image)
-    <div class="page">
-      <table class="brand-bar">
-        <tr>
-          <td>
-            <div class="brand-title">{{ $centerName }}</div>
-            <div class="brand-subtitle">منصة اختبارات العمالة — مستندات ملف العامل</div>
-          </td>
-          <td>
-            <div class="brand-meta">رقم التذكرة: {{ $case->ticket_number }}<br>{{ $image['time'] }}</div>
-          </td>
-        </tr>
-      </table>
-
-      <div class="document-head">
-        <h1>{{ $index + 1 }}. {{ $image['label'] }}</h1>
-        <p>{{ $image['station'] }} — ختم المحطة والتوقيت: {{ $image['time'] }}</p>
-      </div>
-      <div class="image-frame">
-        <img class="doc-img" src="{{ $image['src'] }}" alt="{{ $image['label'] }}">
-      </div>
+    <div class="section-title">
+      <span class="mark">3</span>
+      <span class="text">مستندات العامل</span>
     </div>
-  @endforeach
+    <div class="documents">
+      @foreach ($images as $image)
+        <div class="document">
+          <div class="document-head">
+            <h3>{{ $image['label'] }}</h3>
+            <p>{{ $image['station'] }} — {{ $image['time'] }}</p>
+          </div>
+          <div class="image-frame">
+            <img class="doc-img" src="{{ $image['src'] }}" alt="{{ $image['label'] }}">
+          </div>
+        </div>
+      @endforeach
+    </div>
+  </div>
 
   <div class="page">
     <table class="brand-bar">
@@ -299,16 +302,14 @@
 
     <table class="evaluation-card">
       <tr>
-        <td class="label">اسم العامل</td><td>{{ $case->full_name }}</td>
-        <td class="label">رقم الجواز</td><td>{{ $case->passport_number }}</td>
+        <td class="label">المهمة العملية</td><td colspan="3">{{ $evaluation->task }}</td>
       </tr>
       <tr>
-        <td class="label">المهمة العملية</td><td>{{ $evaluation->task }}</td>
         <td class="label">درجة الصعوبة</td><td>{{ $difficulty }}</td>
+        <td class="label">المقيّم</td><td>{{ $evaluation->evaluator_name }}</td>
       </tr>
       <tr>
-        <td class="label">المقيّم</td><td>{{ $evaluation->evaluator_name }}</td>
-        <td class="label">رقم هوية المقيّم</td><td>{{ $evaluation->evaluator_id_number }}</td>
+        <td class="label">رقم هوية المقيّم</td><td colspan="3">{{ $evaluation->evaluator_id_number }}</td>
       </tr>
     </table>
 
@@ -338,12 +339,10 @@
       <tr>
         <td>
           <h4>توقيع المقيّم</h4>
-          <p>{{ $evaluation->evaluator_name }} — هوية: {{ $evaluation->evaluator_id_number }}</p>
           <img src="{{ $evaluation->evaluator_signature }}" alt="توقيع المقيّم">
         </td>
         <td>
           <h4>توقيع العامل</h4>
-          <p>{{ $case->full_name }} — جواز: {{ $case->passport_number }}</p>
           <img src="{{ $evaluation->worker_signature }}" alt="توقيع العامل">
         </td>
       </tr>
